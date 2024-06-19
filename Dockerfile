@@ -7,6 +7,7 @@ EXPOSE 8080
 # Install and setup
 COPY install.sh /root/tima-edutech/install.sh
 COPY setup.sh /root/tima-edutech/setup.sh
+COPY .env /root/tima-edutech/.env
 
 
 RUN chmod +x /root/tima-edutech/setup.sh
