@@ -23,7 +23,7 @@ public class AdviceController {
     @ResponseStatus(value = HttpStatus.NOT_FOUND)
     @ResponseBody
     public Response<NotFoundException> handleNotFoundException(NotFoundException e) {
-        return new Response<>(e.getMessage(), String.valueOf(HttpStatus.NOT_FOUND.value()));
+        return new Response<>(e.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -34,14 +34,14 @@ public class AdviceController {
         for (FieldError error : e.getBindingResult().getFieldErrors()) {
             errors.add(error.getField() + ": " + error.getDefaultMessage());
         }
-        return new Response<>(String.valueOf(HttpStatus.BAD_REQUEST.value()), "Bad Request Exception", errors);
+        return new Response<>("Bad Request Exception", errors);
     }
 
     @ExceptionHandler(DuplicateEntityException.class)
     @ResponseStatus(value = HttpStatus.CONFLICT)
     @ResponseBody
     public Response<DuplicateEntityException> handleDuplicateException(DuplicateEntityException e) {
-        return new Response<>(e.getMessage(), String.valueOf(HttpStatus.CONFLICT.value()));
+        return new Response<>(e.getMessage());
     }
 
     @ExceptionHandler(Exception.class)
@@ -49,6 +49,6 @@ public class AdviceController {
     @ResponseBody
     public Response<Exception> handleException(Exception e) {
         log.error("Server Error", e);
-        return new Response<>(e.getMessage(), String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()));
+        return new Response<>(e.getMessage());
     }
 }
