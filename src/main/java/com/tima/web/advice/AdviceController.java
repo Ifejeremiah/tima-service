@@ -50,5 +50,6 @@ public class AdviceController {
     public Response<Exception> handleException(Exception e) {
         log.error("Server Error", e);
         return new Response<>(e.getMessage());
+
     }
 }
