@@ -1,4 +1,4 @@
-package com.tima.web.advice;
+package com.tima.web;
 
 import com.tima.model.Response;
 import com.tima.model.Webhook;

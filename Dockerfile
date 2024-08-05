@@ -1,6 +1,6 @@
 FROM openjdk:8u252
 
-LABEL author="Ife Jeremiah"
+LABEL author="ifedun.jeremiah@gmail.com"
 
 EXPOSE 8080
 
