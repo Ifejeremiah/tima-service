@@ -38,7 +38,7 @@ public class AdviceController {
         for (FieldError error : e.getBindingResult().getFieldErrors()) {
             errors.add(error.getField() + ": " + error.getDefaultMessage());
         }
-        return new Response<>(String.valueOf(HttpStatus.BAD_REQUEST.value()), "Bad Request Exception", errors);
+        return new Response<>("Bad Request Exception", errors);
     }
 
     @ExceptionHandler(DuplicateEntityException.class)
@@ -73,7 +73,7 @@ public class AdviceController {
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     @ResponseBody
     public Response<BadRequestException> handleBadRequestException(BadRequestException e) {
-        return new Response<>(e.getMessage(), String.valueOf(HttpStatus.BAD_REQUEST.value()));
+        return new Response<>(e.getMessage());
     }
 
     @ExceptionHandler(Exception.class)
