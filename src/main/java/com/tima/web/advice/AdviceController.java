@@ -1,11 +1,15 @@
 package com.tima.web.advice;
 
+import com.tima.exception.BadRequestException;
 import com.tima.exception.DuplicateEntityException;
 import com.tima.exception.NotFoundException;
 import com.tima.model.Response;
+import io.jsonwebtoken.JwtException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -41,6 +45,34 @@ public class AdviceController {
     @ResponseStatus(value = HttpStatus.CONFLICT)
     @ResponseBody
     public Response<DuplicateEntityException> handleDuplicateException(DuplicateEntityException e) {
+        return new Response<>(e.getMessage());
+    }
+
+    @ExceptionHandler(DuplicateKeyException.class)
+    @ResponseStatus(value = HttpStatus.CONFLICT)
+    @ResponseBody
+    public Response<DuplicateKeyException> handleDuplicateKeyException(DuplicateKeyException e) {
+        return new Response<>(e.getMessage());
+    }
+
+    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public Response<HttpMediaTypeNotSupportedException> handleHttpMediaTypeNotSupportedException(HttpMediaTypeNotSupportedException e) {
+        return new Response<>(e.getMessage());
+    }
+
+    @ExceptionHandler(JwtException.class)
+    @ResponseStatus(value = HttpStatus.UNAUTHORIZED)
+    @ResponseBody
+    public Response<JwtException> handleJwtException(JwtException e) {
+        return new Response<>(e.getMessage());
+    }
+
+    @ExceptionHandler(BadRequestException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public Response<BadRequestException> handleBadRequestException(BadRequestException e) {
         return new Response<>(e.getMessage());
     }
 

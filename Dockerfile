@@ -1,21 +1,21 @@
 FROM openjdk:8u252
 
-LABEL author="Ife Jeremiah"
+LABEL author="ifedun.jeremiah@gmail.com"
 
 EXPOSE 8080
 
 # Install and setup
-COPY install.sh /root/tima-edutech/install.sh
-COPY setup.sh /root/tima-edutech/setup.sh
-COPY .env /root/tima-edutech/.env
+COPY install.sh /root/tima-auth-service/install.sh
+COPY setup.sh /root/tima-auth-service/setup.sh
+COPY .env /root/tima-auth-service/.env
 
 
-RUN chmod +x /root/tima-edutech/setup.sh
+RUN chmod +x /root/tima-auth-service/setup.sh
 
-RUN /root/tima-edutech/setup.sh
+RUN /root/tima-auth-service/setup.sh
 
-ADD target/tima-edutech-*.jar /opt/tima-edutech/tima-edutech-*.jar
-WORKDIR /opt/tima-edutech
+ADD target/tima-auth-service-*.jar /opt/tima-auth-service/tima-auth-service-*.jar
+WORKDIR /opt/tima-auth-service
 
-RUN chmod +x /root/tima-edutech/install.sh
-CMD  /root/tima-edutech/install.sh
+RUN chmod +x /root/tima-auth-service/install.sh
+CMD  /root/tima-auth-service/install.sh

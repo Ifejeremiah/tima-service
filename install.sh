@@ -4,8 +4,8 @@
 mv -f /etc/localtime /etc/localtime.bak
 ln -s /usr/share/zoneinfo/Africa/Lagos /etc/localtime
 
-cd /opt/tima-edutech/
+cd /opt/tima-auth-service/
 
-export $(cat /root/tima-edutech/.env | xargs)
+export $(cat /root/tima-auth-service/.env | xargs)
 
-java -jar -Dspring.profiles.active=docker tima-edutech-*.jar
+java -jar -Dspring.profiles.active=docker tima-auth-service-*.jar
