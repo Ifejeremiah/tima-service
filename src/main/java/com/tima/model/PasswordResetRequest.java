@@ -8,8 +8,8 @@ import javax.validation.constraints.NotBlank;
 
 @Getter
 @Setter
-public class Webhook {
-    @NotBlank(message = "Ref is required")
-    @Length(min = 10, max = 30)
-    private String ref;
+public class PasswordResetRequest {
+    @NotBlank(message = "Email is required")
+    @Length(min = 8, max = 40)
+    private String email;
 }

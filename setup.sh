@@ -1,6 +1,6 @@
 #!/bin/bash
 
 set -e
-mkdir -p /opt/tima-edutech
+mkdir -p /opt/tima-auth-service
 
-cd /opt/tima-edutech
+cd /opt/tima-auth-service

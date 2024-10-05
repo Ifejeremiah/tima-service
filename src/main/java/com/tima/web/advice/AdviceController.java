@@ -1,9 +1,12 @@
 package com.tima.web.advice;
 
+import com.tima.exception.BadRequestException;
 import com.tima.exception.DuplicateEntityException;
 import com.tima.exception.NotFoundException;
 import com.tima.model.Response;
+import io.jsonwebtoken.JwtException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
@@ -35,7 +38,7 @@ public class AdviceController {
         for (FieldError error : e.getBindingResult().getFieldErrors()) {
             errors.add(error.getField() + ": " + error.getDefaultMessage());
         }
-        return new Response<>("Bad Request Exception", errors);
+        return new Response<>(String.valueOf(HttpStatus.BAD_REQUEST.value()), "Bad Request Exception", errors);
     }
 
     @ExceptionHandler(DuplicateEntityException.class)
@@ -45,11 +48,32 @@ public class AdviceController {
         return new Response<>(e.getMessage());
     }
 
+    @ExceptionHandler(DuplicateKeyException.class)
+    @ResponseStatus(value = HttpStatus.CONFLICT)
+    @ResponseBody
+    public Response<DuplicateKeyException> handleDuplicateKeyException(DuplicateKeyException e) {
+        return new Response<>(e.getMessage());
+    }
+
     @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     @ResponseBody
     public Response<HttpMediaTypeNotSupportedException> handleHttpMediaTypeNotSupportedException(HttpMediaTypeNotSupportedException e) {
         return new Response<>(e.getMessage());
+    }
+
+    @ExceptionHandler(JwtException.class)
+    @ResponseStatus(value = HttpStatus.UNAUTHORIZED)
+    @ResponseBody
+    public Response<JwtException> handleJwtException(JwtException e) {
+        return new Response<>(e.getMessage());
+    }
+
+    @ExceptionHandler(BadRequestException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public Response<BadRequestException> handleBadRequestException(BadRequestException e) {
+        return new Response<>(e.getMessage(), String.valueOf(HttpStatus.BAD_REQUEST.value()));
     }
 
     @ExceptionHandler(Exception.class)
