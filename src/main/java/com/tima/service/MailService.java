@@ -1,21 +1,39 @@
 package com.tima.service;
 
 import com.tima.exception.EmailNotSentException;
+import com.tima.model.Mail;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.stereotype.Service;
+
+import javax.mail.internet.MimeMessage;
 
 @Slf4j
-@Component
+@Service
 public class MailService {
+    JavaMailSender mailSender;
+    @Value("${SPRING.MAIL.USERNAME}")
+    private String mailer;
 
-    MailService() {
+    @Autowired
+    MailService(JavaMailSender mailSender) {
+        this.mailSender = mailSender;
     }
 
-    @Async
-    public void sendMail(String recipient, String mail) {
+    public void sendMail(String recipient, Mail mail) {
         try {
-            log.info("sent mail to = {}; body = {}", recipient, mail);
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message);
+
+            helper.setFrom(mailer, mail.getSender());
+            helper.setTo(recipient);
+            helper.setSubject(mail.getSubject());
+            helper.setText(mail.getContext(), true);
+
+            mailSender.send(message);
         } catch (Exception error) {
             throw new EmailNotSentException("Unable to send email: " + error);
         }

@@ -30,6 +30,6 @@ public class User extends BaseObject {
     @NotBlank(message = "Password is required")
     @Length(min = 8, max = 20)
     private String password;
-    private Status status = Status.INACTIVE;
+    private Status status = Status.ACTIVE;
     private Boolean emailConfirmed = false;
 }
