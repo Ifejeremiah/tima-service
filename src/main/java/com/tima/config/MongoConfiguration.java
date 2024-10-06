@@ -46,7 +46,7 @@ public class MongoConfiguration {
             }
         }
 
-        log.info("Mongo InitIndicesAfterStartup take: {}", (System.currentTimeMillis() - init));
+        log.info("Mongo InitIndicesAfterStartup took: {}ms", (System.currentTimeMillis() - init));
     }
 
 }

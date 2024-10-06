@@ -25,7 +25,7 @@ public class AuthController {
     public Response<UserCreateResponse> register(@Validated @RequestBody User user) {
         Response<UserCreateResponse> response = new Response<>();
         response.setData(authService.register(user));
-        response.setResponseMessage("User registered successfully");
+        response.setResponseMessage("User registered and OTP sent via mail successfully");
         return response;
     }
 

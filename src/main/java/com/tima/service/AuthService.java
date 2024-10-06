@@ -31,6 +31,8 @@ public class AuthService {
         try {
             checkEmailExists(user);
             user.setPassword(passwordEncoder.encode(user.getPassword()));
+            String otp = otpService.create(user.getEmail());
+            mailService.sendMail(user.getEmail(), buildOTPMail(otp));
             return buildCreateResponse(user);
         } catch (Exception error) {
             log.error("Error registering user", error);
@@ -45,6 +47,13 @@ public class AuthService {
 
     private UserCreateResponse buildCreateResponse(User user) {
         return new UserCreateResponse(userService.create(user));
+    }
+
+    private Mail buildOTPMail(String otp) {
+        Mail mail = new Mail();
+        mail.setSubject("Verify your email address");
+        mail.setContext(String.format("Verification Code: <b>%s</b>. This code will expire 5 minutes after it was sent.", otp));
+        return mail;
     }
 
     public UserLoginResponse authenticate(UserLoginRequest loginRequest) {
@@ -73,7 +82,7 @@ public class AuthService {
         try {
             User user = userService.findByEmail(resetRequest.getEmail());
             String otp = otpService.create(user.getEmail());
-            mailService.sendMail(user.getEmail(), otp);
+            mailService.sendMail(user.getEmail(), buildOTPMail(otp));
         } catch (Exception error) {
             log.error("Error resetting password", error);
             throw error;
@@ -86,6 +95,7 @@ public class AuthService {
             OTP otp = otpService.findByEmailAndOtp(user.getEmail(), otpRequest.getOtp());
             otpService.checkOTPExpiry(otp);
             otpService.delete(otp);
+            userService.activateEmail(user);
             return buildLoginResponse(user);
         } catch (Exception error) {
             log.error("Error validating OTP", error);
