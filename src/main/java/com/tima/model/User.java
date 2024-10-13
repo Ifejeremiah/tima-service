@@ -16,12 +16,6 @@ import javax.validation.constraints.NotBlank;
 @Document(collection = "user_login")
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class User extends BaseObject {
-    @NotBlank(message = "First name is required")
-    @Length(min = 3, max = 30)
-    private String firstName;
-    @NotBlank(message = "Last name is required")
-    @Length(min = 3, max = 30)
-    private String lastName;
     @Email
     @Indexed(unique = true)
     @NotBlank(message = "Email is required")
