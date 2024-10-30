@@ -2,3 +2,5 @@
 /target/
 .env
 src/main/resources/application-default.properties
+.DS_Store
+/src/.DS_Store
