@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.tima</groupId>
-    <artifactId>tima-auth-service</artifactId>
+    <artifactId>tima-service</artifactId>
     <version>1.0.0</version>
 
     <parent>

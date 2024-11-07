@@ -5,7 +5,6 @@ import com.tima.exception.NotFoundException;
 import com.tima.model.OTP;
 import com.tima.repository.OTPRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -17,7 +16,6 @@ public class OTPService {
 
     OTPRepository otpRepository;
 
-    @Autowired
     OTPService(OTPRepository otpRepository) {
         this.otpRepository = otpRepository;
     }

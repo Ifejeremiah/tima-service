@@ -5,7 +5,6 @@ import com.tima.exception.DuplicateEntityException;
 import com.tima.model.*;
 import com.tima.util.JwtUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +17,6 @@ public class AuthService {
     BCryptPasswordEncoder passwordEncoder;
     JwtUtil jwtUtil;
 
-    @Autowired
     public AuthService(UserService userService, MailService mailService, OTPService otpService, BCryptPasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
         this.userService = userService;
         this.mailService = mailService;
