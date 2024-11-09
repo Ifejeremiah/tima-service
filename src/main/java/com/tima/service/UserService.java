@@ -1,5 +1,6 @@
 package com.tima.service;
 
+import com.tima.enums.Status;
 import com.tima.exception.NotFoundException;
 import com.tima.model.User;
 import com.tima.repository.UserRepository;
@@ -8,7 +9,7 @@ import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
-public class UserService {
+public class UserService extends BaseService<User> {
     UserRepository userRepository;
 
     public UserService(UserRepository userRepository) {
@@ -33,6 +34,15 @@ public class UserService {
         }
     }
 
+    public User findById(String id) {
+        try {
+            return userRepository.findById(id).orElseThrow(() -> new NotFoundException(String.format("Could not find user with user id: %s", id)));
+        } catch (Exception error) {
+            log.error("Error fetching user by id", error);
+            throw error;
+        }
+    }
+
     public Boolean existsByEmail(String email) {
         try {
             return userRepository.existsByEmail(email);
@@ -48,6 +58,17 @@ public class UserService {
             userRepository.save(user);
         } catch (Exception error) {
             log.error("Error activating user email", error);
+            throw error;
+        }
+    }
+
+    public void delete(String id) {
+        try {
+            User existing = this.findById(id);
+            existing.setStatus(Status.DELETED);
+            updateById(existing.getId(), existing);
+        } catch (Exception error) {
+            log.error("Error deleting user", error);
             throw error;
         }
     }

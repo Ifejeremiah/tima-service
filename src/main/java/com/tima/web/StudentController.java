@@ -3,12 +3,11 @@ package com.tima.web;
 import com.tima.model.Response;
 import com.tima.model.Student;
 import com.tima.service.StudentService;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping(value = "/api/v1/students")
@@ -27,10 +26,10 @@ public class StudentController {
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public Response<List<Student>> findAll(
+    public Response<Page<Student>> findAll(
             @RequestParam(name = "page_num", defaultValue = "1") int page,
-            @RequestParam(name = "page_size", defaultValue = "0") int size) {
-        Response<List<Student>> response = new Response<>();
+            @RequestParam(name = "page_size", defaultValue = "10") int size) {
+        Response<Page<Student>> response = new Response<>();
         response.setData(studentService.findAll(page, size));
         response.setResponseMessage("Students fetched successfully");
         return response;
@@ -50,10 +49,9 @@ public class StudentController {
         return new Response<>("Student updated successfully");
     }
 
-//    @PreAuthorize("hasRole('DeletePerso')")
-//    @DeleteMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-//    public Response<Perso> delete(@PathVariable int id) {
-//        persoService.delete(id);
-//        return new Response<>("Perso deleted successfully");
-//    }
+    @DeleteMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Response<Student> delete(@PathVariable String id) {
+        studentService.delete(id);
+        return new Response<>("Student deleted successfully");
+    }
 }
