@@ -1,26 +1,27 @@
 package com.tima.util;
 
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.crypto.SecretKey;
 import java.util.Date;
 
 @Component
 public class JwtUtil {
-    private final SecretKey secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS512);
     @Value("${JWT.EXPIRATION.MS}")
-    private long expirationInMs;
+    private long EXPIRATION;
+    @Value("${JWT.SECRET}")
+    private String SECRET;
 
     public String generateToken(String email) {
-        return Jwts.builder()
-                .setSubject(email)
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + expirationInMs * 1000))
-                .signWith(secretKey, SignatureAlgorithm.HS512)
-                .compact();
+        return JWT.create()
+                .withSubject(email)
+                .withExpiresAt(new Date(System.currentTimeMillis() + EXPIRATION))
+                .sign(Algorithm.HMAC256(SECRET));
+    }
+
+    public String parseToken(String token) {
+        return JWT.require(Algorithm.HMAC256(SECRET)).build().verify(token).getSubject();
     }
 }
