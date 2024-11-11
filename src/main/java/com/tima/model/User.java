@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import java.time.Instant;
 
 @Getter
 @Setter
@@ -26,4 +27,5 @@ public class User extends BaseObject {
     private String password;
     private Status status = Status.ACTIVE;
     private Boolean emailConfirmed = false;
+    private Instant lastLoginOn;
 }

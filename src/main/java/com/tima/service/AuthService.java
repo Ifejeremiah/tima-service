@@ -8,6 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
+
 @Slf4j
 @Service
 public class AuthService {
@@ -58,6 +60,8 @@ public class AuthService {
         try {
             User user = userService.findByEmail(loginRequest.getEmail());
             validatePassword(loginRequest.getPassword(), user.getPassword());
+            user.setLastLoginOn(new Date().toInstant());
+            userService.updateById(user.getId(), user);
             return buildLoginResponse(user);
         } catch (Exception error) {
             log.error("Error authenticating user", error);
