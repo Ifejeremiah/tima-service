@@ -1,6 +1,6 @@
 #!/bin/bash
 
 set -e
-mkdir -p /opt/tima-auth-service
+mkdir -p /opt/tima-service
 
-cd /opt/tima-auth-service
+cd /opt/tima-service
