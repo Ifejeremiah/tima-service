@@ -1,6 +1,6 @@
 package com.tima.enums;
 
-public enum Status {
+public enum UserStatus {
     ACTIVE,
     INACTIVE,
     DELETED

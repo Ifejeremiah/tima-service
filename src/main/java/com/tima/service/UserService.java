@@ -1,6 +1,6 @@
 package com.tima.service;
 
-import com.tima.enums.Status;
+import com.tima.enums.UserStatus;
 import com.tima.exception.NotFoundException;
 import com.tima.model.User;
 import com.tima.repository.UserRepository;
@@ -65,7 +65,7 @@ public class UserService extends BaseService<User> {
     public void delete(String id) {
         try {
             User existing = this.findById(id);
-            existing.setStatus(Status.DELETED);
+            existing.setUserStatus(UserStatus.DELETED);
             updateById(existing.getId(), existing);
         } catch (Exception error) {
             log.error("Error deleting user", error);

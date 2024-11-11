@@ -45,7 +45,7 @@ public class JWTFilter extends OncePerRequestFilter {
                 try {
                     String email = jwtUtil.parseToken(jwt);
                     User user = userService.findByEmail(email);
-                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(email, user.getPassword(), null);
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(user.getId(), user.getPassword(), null);
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                     filterChain.doFilter(request, response);
                 } catch (JWTVerificationException error) {

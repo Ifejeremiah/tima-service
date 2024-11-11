@@ -1,5 +1,6 @@
 package com.tima.service;
 
+import com.tima.exception.DuplicateEntityException;
 import com.tima.exception.NotFoundException;
 import com.tima.model.Student;
 import com.tima.repository.StudentRepository;
@@ -24,11 +25,18 @@ public class StudentService extends BaseService<Student> {
 
     public void create(Student student) {
         try {
+            checkUserExists(fetchCurrentUserId());
+            student.setUserId(fetchCurrentUserId());
             studentRepository.save(student);
         } catch (Exception error) {
             log.error("Error creating student", error);
             throw error;
         }
+    }
+
+    private void checkUserExists(String userId) {
+        if (studentRepository.existsByUserId(userId))
+            throw new DuplicateEntityException("Student with this user id already exists");
     }
 
     public Page<Student> findAll(int page, int size) {
@@ -49,6 +57,15 @@ public class StudentService extends BaseService<Student> {
         }
     }
 
+    public Student findByUserId() {
+        try {
+            return studentRepository.findByUserId(fetchCurrentUserId()).orElseThrow(() -> new NotFoundException(String.format("Could not find student with user id: %s", fetchCurrentUserId())));
+        } catch (Exception error) {
+            log.error("Error fetching student by current user id");
+            throw error;
+        }
+    }
+
     public void update(String id, Student update) {
         try {
             Student existing = this.findById(id);
@@ -61,9 +78,8 @@ public class StudentService extends BaseService<Student> {
 
     public void delete(String id) {
         try {
-//            Student student = this.findById(id);
-            userService.delete(id);
-//            studentRepository.deleteById(student.getId());
+            Student student = this.findById(id);
+            userService.delete(student.getUserId());
         } catch (Exception error) {
             log.error("Error deleting student", error);
             throw error;

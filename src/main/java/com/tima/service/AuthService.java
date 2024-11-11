@@ -1,5 +1,6 @@
 package com.tima.service;
 
+import com.tima.enums.UserStatus;
 import com.tima.exception.BadRequestException;
 import com.tima.exception.DuplicateEntityException;
 import com.tima.model.*;
@@ -59,6 +60,7 @@ public class AuthService {
     public UserLoginResponse authenticate(UserLoginRequest loginRequest) {
         try {
             User user = userService.findByEmail(loginRequest.getEmail());
+            checkUserIsNotDeleted(user);
             validatePassword(loginRequest.getPassword(), user.getPassword());
             user.setLastLoginOn(new Date().toInstant());
             userService.updateById(user.getId(), user);
@@ -78,6 +80,11 @@ public class AuthService {
     private void validatePassword(String rawPassword, String encodedPassword) {
         if (!passwordEncoder.matches(rawPassword, encodedPassword))
             throw new BadRequestException("Invalid credentials");
+    }
+
+    private void checkUserIsNotDeleted(User user) {
+        if (UserStatus.DELETED.equals(user.getUserStatus()))
+            throw new BadRequestException("Account blocked - contact administrator");
     }
 
     public void resetPassword(PasswordResetRequest resetRequest) {

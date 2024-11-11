@@ -15,6 +15,7 @@ import java.util.Set;
 @Document(collection = "students")
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class Student extends BaseObject {
+    private String userId;
     @NotBlank(message = "Name is required")
     @Length(min = 3, max = 40)
     private String name;

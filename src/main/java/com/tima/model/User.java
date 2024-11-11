@@ -1,7 +1,7 @@
 package com.tima.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.tima.enums.Status;
+import com.tima.enums.UserStatus;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.validator.constraints.Length;
@@ -25,7 +25,7 @@ public class User extends BaseObject {
     @NotBlank(message = "Password is required")
     @Length(min = 8, max = 20)
     private String password;
-    private Status status = Status.ACTIVE;
+    private UserStatus userStatus = UserStatus.ACTIVE;
     private Boolean emailConfirmed = false;
     private Instant lastLoginOn;
 }
