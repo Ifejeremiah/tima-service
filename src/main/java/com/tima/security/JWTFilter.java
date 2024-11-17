@@ -28,7 +28,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        if (request.getRequestURI().contains("/api/v1/auth/")) {
+        if (request.getRequestURI().contains("/api/v1/auth/") || request.getRequestURI().contains("/actuator/")) {
             filterChain.doFilter(request, response);
             return;
         }
