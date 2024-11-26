@@ -27,11 +27,11 @@ public class StudentController {
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public Response<Page<Student>> findAll(
-            @RequestParam(name = "page_num", defaultValue = "1") int page,
+            @RequestParam(name = "page_num", defaultValue = "0") int page,
             @RequestParam(name = "page_size", defaultValue = "10") int size) {
         Response<Page<Student>> response = new Response<>();
         response.setData(studentService.findAll(page, size));
-        response.setResponseMessage("Students fetched successfully");
+        response.setMessage("Students fetched successfully");
         return response;
     }
 
@@ -39,7 +39,7 @@ public class StudentController {
     public Response<Student> find(@PathVariable String id) {
         Response<Student> response = new Response<>();
         response.setData(studentService.findById(id));
-        response.setResponseMessage("Student fetched successfully");
+        response.setMessage("Student fetched successfully");
         return response;
     }
 
@@ -47,7 +47,7 @@ public class StudentController {
     public Response<Student> findByCurrentUser() {
         Response<Student> response = new Response<>();
         response.setData(studentService.findByUserId());
-        response.setResponseMessage("Student fetched by current user successfully");
+        response.setMessage("Student fetched by current user successfully");
         return response;
     }
 

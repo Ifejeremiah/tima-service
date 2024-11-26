@@ -1,5 +1,8 @@
 package com.tima.service;
 
+import com.tima.dto.UserCreateResponse;
+import com.tima.dto.UserLoginRequest;
+import com.tima.dto.UserLoginResponse;
 import com.tima.enums.UserStatus;
 import com.tima.exception.BadRequestException;
 import com.tima.exception.DuplicateEntityException;
@@ -8,8 +11,6 @@ import com.tima.util.JwtUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.Date;
 
 @Slf4j
 @Service
@@ -30,7 +31,7 @@ public class AuthService {
 
     public UserCreateResponse register(User user) {
         try {
-            checkEmailExists(user);
+            checkEmailExists(user.getEmail());
             user.setPassword(passwordEncoder.encode(user.getPassword()));
             String otp = otpService.create(user.getEmail());
             mailService.sendMail(user.getEmail(), buildOTPMail(otp));
@@ -41,13 +42,14 @@ public class AuthService {
         }
     }
 
-    private void checkEmailExists(User user) {
-        if (userService.existsByEmail(user.getEmail()))
+    private void checkEmailExists(String email) {
+        if (userService.findByEmail(email) != null)
             throw new DuplicateEntityException("User with this email already exists");
     }
 
     private UserCreateResponse buildCreateResponse(User user) {
-        return new UserCreateResponse(userService.create(user));
+        long id = userService.create(user);
+        return new UserCreateResponse(id, user.getEmail());
     }
 
     private Mail buildOTPMail(String otp) {
@@ -60,15 +62,19 @@ public class AuthService {
     public UserLoginResponse authenticate(UserLoginRequest loginRequest) {
         try {
             User user = userService.findByEmail(loginRequest.getEmail());
+            checkUserExists(user);
             checkUserIsNotDeleted(user);
             validatePassword(loginRequest.getPassword(), user.getPassword());
-            user.setLastLoginOn(new Date().toInstant());
-            userService.updateById(user.getId(), user);
             return buildLoginResponse(user);
         } catch (Exception error) {
             log.error("Error authenticating user", error);
             throw error;
         }
+    }
+
+    private void checkUserExists(User user) {
+        if (user == null)
+            throw new BadRequestException("Invalid credentials");
     }
 
     private UserLoginResponse buildLoginResponse(User user) {
@@ -89,7 +95,7 @@ public class AuthService {
 
     public void resetPassword(PasswordResetRequest resetRequest) {
         try {
-            User user = userService.findByEmail(resetRequest.getEmail());
+            User user = userService.findByEmail(resetRequest.getEmail(), true);
             String otp = otpService.create(user.getEmail());
             mailService.sendMail(user.getEmail(), buildOTPMail(otp));
         } catch (Exception error) {
@@ -100,7 +106,7 @@ public class AuthService {
 
     public UserLoginResponse validateOTP(OTPRequest otpRequest) {
         try {
-            User user = userService.findByEmail(otpRequest.getEmail());
+            User user = userService.findByEmail(otpRequest.getEmail(), true);
             OTP otp = otpService.findByEmailAndOtp(user.getEmail(), otpRequest.getOtp());
             otpService.checkOTPExpiry(otp);
             otpService.delete(otp);

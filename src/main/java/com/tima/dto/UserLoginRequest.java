@@ -1,4 +1,4 @@
-package com.tima.model;
+package com.tima.dto;
 
 import lombok.Getter;
 import lombok.Setter;

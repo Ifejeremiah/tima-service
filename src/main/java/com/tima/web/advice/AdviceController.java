@@ -7,6 +7,7 @@ import com.tima.model.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,6 +67,20 @@ public class AdviceController {
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     @ResponseBody
     public Response<BadRequestException> handleBadRequestException(BadRequestException e) {
+        return new Response<>(e.getMessage());
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public Response<HttpMessageNotReadableException> handleHttpMediaTypeNotSupportedException(HttpMessageNotReadableException e) {
+        return new Response<>(e.getMessage());
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public Response<MethodArgumentTypeMismatchException> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException e) {
         return new Response<>(e.getMessage());
     }
 

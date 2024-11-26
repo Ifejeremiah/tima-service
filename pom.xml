@@ -38,7 +38,23 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-mongodb</artifactId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
+        </dependency>
+        <!--        <dependency>-->
+        <!--            <groupId>com.microsoft</groupId>-->
+        <!--            <artifactId>sqljdbc</artifactId>-->
+        <!--            <version>3.0</version>-->
+        <!--            <scope>runtime</scope>-->
+        <!--        </dependency>-->
+        <dependency>
+            <groupId>com.microsoft.sqlserver</groupId>
+            <artifactId>mssql-jdbc</artifactId>
+            <!--            <version>12.4.0.jre8</version>-->
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+            <version>5.2.4</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>

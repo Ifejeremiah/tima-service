@@ -10,10 +10,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Response<T> {
-    private String responseMessage;
+    private String message;
     private T data;
 
-    public Response(String responseMessage) {
-        this.responseMessage = responseMessage;
+    public Response(String message) {
+        this.message = message;
     }
 }
