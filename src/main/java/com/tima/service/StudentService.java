@@ -1,82 +1,84 @@
 package com.tima.service;
 
+import com.tima.dao.StudentDao;
 import com.tima.exception.DuplicateEntityException;
 import com.tima.exception.NotFoundException;
+import com.tima.model.Page;
 import com.tima.model.Student;
-import com.tima.repository.StudentRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
-public class StudentService extends BaseService<Student> {
-    StudentRepository studentRepository;
-    MongoTemplate mongoTemplate;
+public class StudentService extends BaseService {
     UserService userService;
+    StudentDao studentDao;
 
-    public StudentService(StudentRepository studentRepository, MongoTemplate mongoTemplate, UserService userService) {
-        this.studentRepository = studentRepository;
-        this.mongoTemplate = mongoTemplate;
+    public StudentService(UserService userService, StudentDao studentDao) {
         this.userService = userService;
+        this.studentDao = studentDao;
     }
 
     public void create(Student student) {
         try {
             checkUserExists(fetchCurrentUserId());
             student.setUserId(fetchCurrentUserId());
-            studentRepository.save(student);
+            studentDao.create(student);
         } catch (Exception error) {
             log.error("Error creating student", error);
             throw error;
         }
     }
 
-    private void checkUserExists(String userId) {
-        if (studentRepository.existsByUserId(userId))
+    private void checkUserExists(int userId) {
+        if (studentDao.findByUserId(userId) != null)
             throw new DuplicateEntityException("Student with this user id already exists");
     }
 
-    public Page<Student> findAll(int page, int size) {
+    public Page<Student> findAll(int page, int size, String searchQuery) {
         try {
-            return studentRepository.findAll(PageRequest.of(page, size));
+            return studentDao.findAll(page, size, searchQuery);
         } catch (Exception error) {
             log.error("Error fetching all students", error);
             throw error;
         }
     }
 
-    public Student findById(String studentId) {
+    public Student findById(int id) {
         try {
-            return studentRepository.findById(studentId).orElseThrow(() -> new NotFoundException(String.format("Could not find student with student id: %s", studentId)));
+            Student student = studentDao.find(id);
+            if (student == null) throw new NotFoundException("Could not find student with student id " + id);
+            return student;
         } catch (Exception error) {
-            log.error("Error fetching student");
+            log.error("Error fetching student", error);
             throw error;
         }
     }
 
     public Student findByUserId() {
         try {
-            return studentRepository.findByUserId(fetchCurrentUserId()).orElseThrow(() -> new NotFoundException(String.format("Could not find student with user id: %s", fetchCurrentUserId())));
+            Student student = studentDao.findByUserId(fetchCurrentUserId());
+            if (student == null)
+                throw new NotFoundException("Could not find student with user id " + fetchCurrentUserId());
+            return student;
         } catch (Exception error) {
-            log.error("Error fetching student by current user id");
+            log.error("Error fetching student by current user id", error);
             throw error;
         }
     }
 
-    public void update(String id, Student update) {
+    public void update(int id, Student update) {
         try {
             Student existing = this.findById(id);
-            updateById(existing.getId(), update);
+            update.setId(existing.getId());
+            studentDao.update(update);
         } catch (Exception error) {
             log.error("Error updating student", error);
             throw error;
         }
     }
 
-    public void delete(String id) {
+    public void delete(int id) {
         try {
             Student student = this.findById(id);
             userService.delete(student.getUserId());

@@ -1,7 +1,7 @@
 package com.tima.web;
 
+import com.tima.dto.Response;
 import com.tima.model.Guardian;
-import com.tima.model.Response;
 import com.tima.model.Student;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;

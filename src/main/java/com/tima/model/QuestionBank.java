@@ -5,7 +5,6 @@ import com.tima.enums.QuestionBankStatus;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.validator.constraints.Length;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -13,7 +12,6 @@ import java.util.Set;
 
 @Getter
 @Setter
-@Document(collection = "question_bank")
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class QuestionBank extends BaseObject {
     @NotBlank(message = "Subject is required")

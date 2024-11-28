@@ -1,11 +1,6 @@
 package com.tima.web;
 
-import com.tima.dto.UserCreateResponse;
-import com.tima.dto.UserLoginRequest;
-import com.tima.dto.UserLoginResponse;
-import com.tima.model.OTPRequest;
-import com.tima.model.PasswordResetRequest;
-import com.tima.model.Response;
+import com.tima.dto.*;
 import com.tima.model.User;
 import com.tima.service.AuthService;
 import org.springframework.http.HttpStatus;

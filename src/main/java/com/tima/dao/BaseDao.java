@@ -84,21 +84,6 @@ public class BaseDao<T> {
         return new Page<>(count, content);
     }
 
-    public Page<T> findAll(Integer pageNum, Integer pageSize, String issuerCode, String searchQuery) throws DataAccessException {
-        MapSqlParameterSource in = (new MapSqlParameterSource())
-                .addValue(PAGE, pageNum <= 0 ? 1 : pageNum)
-                .addValue(PAGE_SIZE, pageSize <= 0 ? 10 : pageSize)
-                .addValue(SEARCH_QUERY, searchQuery == null ? "" : searchQuery)
-                .addValue("issuer_code", issuerCode);
-
-        Map<String, Object> m = this.findAllPaginated.execute(in);
-        List<T> content = (List<T>) m.get(MULTIPLE_RESULT);
-        List<Long> counts = (List<Long>) m.get(RESULT_COUNT);
-        Long count = counts.isEmpty() ? 0 : (Long) counts.get(0);
-
-        return new Page<>(count, content);
-    }
-
     public class RowCountMapper implements RowMapper<Long> {
         public RowCountMapper() {
         }

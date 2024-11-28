@@ -1,9 +1,9 @@
 package com.tima.web.advice;
 
+import com.tima.dto.Response;
 import com.tima.exception.BadRequestException;
 import com.tima.exception.DuplicateEntityException;
 import com.tima.exception.NotFoundException;
-import com.tima.model.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;

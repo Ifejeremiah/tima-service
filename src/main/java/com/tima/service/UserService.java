@@ -1,7 +1,6 @@
 package com.tima.service;
 
 import com.tima.dao.UserDao;
-import com.tima.enums.UserStatus;
 import com.tima.exception.DuplicateEntityException;
 import com.tima.exception.NotFoundException;
 import com.tima.model.User;
@@ -10,7 +9,7 @@ import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
-public class UserService extends BaseService<User> {
+public class UserService extends BaseService {
     UserDao userDao;
 
     public UserService(UserDao userDao) {
@@ -44,7 +43,7 @@ public class UserService extends BaseService<User> {
     public User findByEmail(String email, Boolean throwException) {
         try {
             User user = userDao.findByEmail(email);
-            if (user == null) throw new NotFoundException("Could not find user with email " + email);
+            if (user == null && throwException) throw new NotFoundException("Could not find user with email " + email);
             return user;
         } catch (Exception error) {
             log.error("Error fetching user by email, throw exception", error);
@@ -75,8 +74,7 @@ public class UserService extends BaseService<User> {
     public void delete(int id) {
         try {
             User existing = this.findById(id);
-            existing.setUserStatus(UserStatus.DELETED);
-//            updateById(existing.getId(), existing);
+            userDao.delete(existing.getId());
         } catch (Exception error) {
             log.error("Error deleting user", error);
             throw error;

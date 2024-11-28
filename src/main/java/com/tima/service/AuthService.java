@@ -1,12 +1,12 @@
 package com.tima.service;
 
-import com.tima.dto.UserCreateResponse;
-import com.tima.dto.UserLoginRequest;
-import com.tima.dto.UserLoginResponse;
+import com.tima.dto.*;
 import com.tima.enums.UserStatus;
 import com.tima.exception.BadRequestException;
 import com.tima.exception.DuplicateEntityException;
-import com.tima.model.*;
+import com.tima.model.Mail;
+import com.tima.model.Otp;
+import com.tima.model.User;
 import com.tima.util.JwtUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -107,7 +107,7 @@ public class AuthService {
     public UserLoginResponse validateOTP(OTPRequest otpRequest) {
         try {
             User user = userService.findByEmail(otpRequest.getEmail(), true);
-            OTP otp = otpService.findByEmailAndOtp(user.getEmail(), otpRequest.getOtp());
+            Otp otp = otpService.findByEmailAndOtp(user.getEmail(), otpRequest.getOtp());
             otpService.checkOTPExpiry(otp);
             otpService.delete(otp);
             userService.activateEmail(user);

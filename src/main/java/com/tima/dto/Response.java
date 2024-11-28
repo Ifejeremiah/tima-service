@@ -1,4 +1,4 @@
-package com.tima.model;
+package com.tima.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
