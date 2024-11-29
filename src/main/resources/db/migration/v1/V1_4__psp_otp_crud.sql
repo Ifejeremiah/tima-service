@@ -9,7 +9,7 @@ IF
 GO
 
 ALTER PROCEDURE [psp_create_otp](
-    @id BIGINT = 0 OUTPUT,
+    @idx BIGINT = 0 OUTPUT,
     @email VARCHAR(70),
     @otp CHAR(7),
     @expires_at DATETIME)
@@ -24,7 +24,7 @@ VALUES (@email, @otp, @expires_at, GETDATE())
     ELSE
         COMMIT TRANSACTION;
 
-SELECT @id = @@IDENTITY
+SELECT @idx = @@IDENTITY
 GO
 
 -- FETCH OTP BY EMAIL AND OTP --

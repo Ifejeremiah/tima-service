@@ -8,7 +8,7 @@ IF NOT EXISTS(SELECT *
 GO
 
 ALTER PROCEDURE [psp_create_user_login](
-    @id BIGINT = 0 OUTPUT,
+    @idx BIGINT = 0 OUTPUT,
     @email VARCHAR(70),
     @password VARCHAR(225))
 AS
@@ -22,7 +22,7 @@ VALUES (@email, @password, 'INACTIVE', GETDATE())
     ELSE
         COMMIT TRANSACTION;
 
-SELECT @id = @@IDENTITY
+SELECT @idx = @@IDENTITY
 GO
 
 -- SET LAST LOGIN TIME --

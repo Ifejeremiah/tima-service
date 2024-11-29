@@ -8,7 +8,7 @@ IF NOT EXISTS(SELECT *
 GO
 
 ALTER PROCEDURE [psp_create_student](
-    @id BIGINT = 0 OUTPUT,
+    @idx BIGINT = 0 OUTPUT,
     @user_id INT,
     @name VARCHAR(70),
     @age_range VARCHAR(10),
@@ -59,7 +59,7 @@ VALUES (@user_id,
     ELSE
         COMMIT TRANSACTION;
 
-SELECT @id = @@IDENTITY
+SELECT @idx = @@IDENTITY
 GO
 
 -- FIND ALL STUDENTS  --
@@ -79,7 +79,9 @@ DECLARE @offset INT
     SET @offset = (@page - 1) * @page_size
 
     BEGIN TRANSACTION
-SELECT name,
+SELECT id,
+       user_id,
+       name,
        age_range,
        name_of_school,
        education_level,

@@ -31,7 +31,7 @@ public class BaseDao<T> {
     public long create(T model) throws DataAccessException {
         SqlParameterSource in = new BeanPropertySqlParameterSource(model);
         Map<String, Object> m = this.create.execute(in);
-        return (long) m.get("id");
+        return (long) m.get("idx");
     }
 
     public void update(T model) throws DataAccessException {
