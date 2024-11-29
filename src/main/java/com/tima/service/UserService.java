@@ -1,53 +1,63 @@
 package com.tima.service;
 
-import com.tima.enums.UserStatus;
+import com.tima.dao.UserDao;
+import com.tima.exception.DuplicateEntityException;
 import com.tima.exception.NotFoundException;
 import com.tima.model.User;
-import com.tima.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
-public class UserService extends BaseService<User> {
-    UserRepository userRepository;
+public class UserService extends BaseService {
+    UserDao userDao;
 
-    public UserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public UserService(UserDao userDao) {
+        this.userDao = userDao;
     }
 
-    public User create(User user) {
+    public long create(User user) {
         try {
-            return userRepository.save(user);
+            checkUserExists(user.getEmail());
+            return userDao.create(user);
         } catch (Exception error) {
             log.error("Error creating user", error);
             throw error;
         }
     }
 
+    private void checkUserExists(String email) {
+        if (this.findByEmail(email) != null)
+            throw new DuplicateEntityException("User with this email already exists");
+    }
+
     public User findByEmail(String email) {
         try {
-            return userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException(String.format("Could not find user with email: %s", email)));
+            return userDao.findByEmail(email);
         } catch (Exception error) {
             log.error("Error fetching user by email", error);
             throw error;
         }
     }
 
-    public User findById(String id) {
+    public User findByEmail(String email, Boolean throwException) {
         try {
-            return userRepository.findById(id).orElseThrow(() -> new NotFoundException(String.format("Could not find user with user id: %s", id)));
+            User user = userDao.findByEmail(email);
+            if (user == null && throwException) throw new NotFoundException("Could not find user with email " + email);
+            return user;
         } catch (Exception error) {
-            log.error("Error fetching user by id", error);
+            log.error("Error fetching user by email, throw exception", error);
             throw error;
         }
     }
 
-    public Boolean existsByEmail(String email) {
+    public User findById(int id) {
         try {
-            return userRepository.existsByEmail(email);
+            User user = userDao.find(id);
+            if (user == null) throw new NotFoundException("Could not find user with user id " + id);
+            return user;
         } catch (Exception error) {
-            log.error("Error checking email exists", error);
+            log.error("Error fetching user", error);
             throw error;
         }
     }
@@ -55,18 +65,16 @@ public class UserService extends BaseService<User> {
     public void activateEmail(User user) {
         try {
             user.setEmailConfirmed(true);
-            userRepository.save(user);
         } catch (Exception error) {
             log.error("Error activating user email", error);
             throw error;
         }
     }
 
-    public void delete(String id) {
+    public void delete(int id) {
         try {
             User existing = this.findById(id);
-            existing.setUserStatus(UserStatus.DELETED);
-            updateById(existing.getId(), existing);
+            userDao.delete(existing.getId());
         } catch (Exception error) {
             log.error("Error deleting user", error);
             throw error;

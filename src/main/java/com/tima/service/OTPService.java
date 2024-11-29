@@ -1,9 +1,9 @@
 package com.tima.service;
 
+import com.tima.dao.OtpDao;
 import com.tima.exception.BadRequestException;
 import com.tima.exception.NotFoundException;
-import com.tima.model.OTP;
-import com.tima.repository.OTPRepository;
+import com.tima.model.Otp;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -14,22 +14,22 @@ import java.util.Random;
 @Service
 public class OTPService {
 
-    OTPRepository otpRepository;
+    OtpDao otpDao;
 
-    OTPService(OTPRepository otpRepository) {
-        this.otpRepository = otpRepository;
+    OTPService(OtpDao otpDao) {
+        this.otpDao = otpDao;
     }
 
     public String create(String email) {
         try {
             String generatedOTP = generateRandomNumberString();
 
-            OTP otp = new OTP();
+            Otp otp = new Otp();
             otp.setEmail(email);
             otp.setOtp(generatedOTP);
             otp.setExpiresAt(new Date(System.currentTimeMillis() + 300000));
 
-            otpRepository.save(otp);
+            otpDao.create(otp);
             return generatedOTP;
         } catch (Exception error) {
             log.error("Error creating otp", error);
@@ -48,16 +48,18 @@ public class OTPService {
         }
     }
 
-    public OTP findByEmailAndOtp(String email, String otp) {
+    public Otp findByEmailAndOtp(String email, String otp) {
         try {
-            return otpRepository.findByEmailAndOtp(email, otp).orElseThrow(() -> new NotFoundException("Could not find OTP"));
+            Otp existing = otpDao.findByEmailAndOTP(email, otp);
+            if (existing == null) throw new NotFoundException("Could not find OTP");
+            return existing;
         } catch (Exception error) {
             log.error("Error fetching OTP by email and otp", error);
             throw error;
         }
     }
 
-    public void checkOTPExpiry(OTP otp) {
+    public void checkOTPExpiry(Otp otp) {
         try {
             boolean isExpired = otp.getExpiresAt().before(new Date());
             if (isExpired) throw new BadRequestException("This OTP is expired");
@@ -67,9 +69,9 @@ public class OTPService {
         }
     }
 
-    public void delete(OTP otp) {
+    public void delete(Otp otp) {
         try {
-            otpRepository.deleteById(otp.getId());
+            otpDao.delete(otp.getId());
         } catch (Exception error) {
             log.error("Error deleting OTP", error);
             throw error;

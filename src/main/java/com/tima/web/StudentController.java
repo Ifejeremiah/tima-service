@@ -1,9 +1,9 @@
 package com.tima.web;
 
-import com.tima.model.Response;
+import com.tima.dto.Response;
+import com.tima.model.Page;
 import com.tima.model.Student;
 import com.tima.service.StudentService;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
@@ -27,19 +27,20 @@ public class StudentController {
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public Response<Page<Student>> findAll(
-            @RequestParam(name = "page_num", defaultValue = "1") int page,
-            @RequestParam(name = "page_size", defaultValue = "10") int size) {
+            @RequestParam(name = "page_num", defaultValue = "0") int page,
+            @RequestParam(name = "page_size", defaultValue = "10") int size,
+            @RequestParam(name = "search_query", required = false) String searchQuery) {
         Response<Page<Student>> response = new Response<>();
-        response.setData(studentService.findAll(page, size));
-        response.setResponseMessage("Students fetched successfully");
+        response.setData(studentService.findAll(page, size, searchQuery));
+        response.setMessage("Students fetched successfully");
         return response;
     }
 
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Response<Student> find(@PathVariable String id) {
+    public Response<Student> find(@PathVariable int id) {
         Response<Student> response = new Response<>();
         response.setData(studentService.findById(id));
-        response.setResponseMessage("Student fetched successfully");
+        response.setMessage("Student fetched successfully");
         return response;
     }
 
@@ -47,18 +48,18 @@ public class StudentController {
     public Response<Student> findByCurrentUser() {
         Response<Student> response = new Response<>();
         response.setData(studentService.findByUserId());
-        response.setResponseMessage("Student fetched by current user successfully");
+        response.setMessage("Student fetched by current user successfully");
         return response;
     }
 
     @PutMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public Response<Student> update(@RequestBody @Validated Student updateRequest, @PathVariable String id) {
+    public Response<Student> update(@PathVariable int id, @RequestBody @Validated Student updateRequest) {
         studentService.update(id, updateRequest);
         return new Response<>("Student updated successfully");
     }
 
     @DeleteMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Response<Student> delete(@PathVariable String id) {
+    public Response<Student> delete(@PathVariable int id) {
         studentService.delete(id);
         return new Response<>("Student deleted successfully");
     }

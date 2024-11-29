@@ -5,20 +5,16 @@ import com.tima.enums.UserStatus;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.validator.constraints.Length;
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@Document(collection = "user_login")
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class User extends BaseObject {
     @Email
-    @Indexed(unique = true)
     @NotBlank(message = "Email is required")
     @Length(min = 8, max = 40)
     private String email;
@@ -27,5 +23,5 @@ public class User extends BaseObject {
     private String password;
     private UserStatus userStatus = UserStatus.ACTIVE;
     private Boolean emailConfirmed = false;
-    private Instant lastLoginOn;
+    private LocalDateTime lastLoginOn;
 }

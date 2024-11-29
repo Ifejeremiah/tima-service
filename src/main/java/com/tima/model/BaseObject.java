@@ -1,19 +1,18 @@
 package com.tima.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.LastModifiedDate;
 
 import java.io.Serializable;
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Data
 public abstract class BaseObject implements Serializable {
-    @Id
-    private String id;
-    @CreatedDate
-    private Instant createdOn;
-    @LastModifiedDate
-    private Instant lastUpdatedOn;
+    @JsonIgnore
+    private long idx;
+    private Integer id;
+    private String createdBy;
+    private LocalDateTime createdOn;
+    private String lastUpdatedBy;
+    private LocalDateTime lastUpdatedOn;
 }
