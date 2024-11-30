@@ -11,12 +11,12 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 public class StudentService extends BaseService {
-    UserService userService;
     StudentDao studentDao;
+    UserService userService;
 
-    public StudentService(UserService userService, StudentDao studentDao) {
-        this.userService = userService;
+    public StudentService(StudentDao studentDao, UserService userService) {
         this.studentDao = studentDao;
+        this.userService = userService;
     }
 
     public void create(Student student) {
@@ -24,6 +24,7 @@ public class StudentService extends BaseService {
             checkUserExists(fetchCurrentUserId());
             student.setUserId(fetchCurrentUserId());
             studentDao.create(student);
+            userService.activateUser(fetchCurrentUserId());
         } catch (Exception error) {
             log.error("Error creating student", error);
             throw error;
@@ -59,7 +60,7 @@ public class StudentService extends BaseService {
         try {
             Student student = studentDao.findByUserId(fetchCurrentUserId());
             if (student == null)
-                throw new NotFoundException("Could not find student with user id " + fetchCurrentUserId());
+                throw new NotFoundException("No student found with your id");
             return student;
         } catch (Exception error) {
             log.error("Error fetching student by current user id", error);
@@ -74,16 +75,6 @@ public class StudentService extends BaseService {
             studentDao.update(update);
         } catch (Exception error) {
             log.error("Error updating student", error);
-            throw error;
-        }
-    }
-
-    public void delete(int id) {
-        try {
-            Student student = this.findById(id);
-            userService.delete(student.getUserId());
-        } catch (Exception error) {
-            log.error("Error deleting student", error);
             throw error;
         }
     }

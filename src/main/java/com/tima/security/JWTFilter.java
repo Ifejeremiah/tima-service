@@ -1,6 +1,5 @@
 package com.tima.security;
 
-import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.tima.model.User;
 import com.tima.service.UserService;
 import com.tima.util.JwtUtil;
@@ -48,7 +47,7 @@ public class JWTFilter extends OncePerRequestFilter {
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(user.getId(), user.getPassword(), null);
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                     filterChain.doFilter(request, response);
-                } catch (JWTVerificationException error) {
+                } catch (Exception error) {
                     response.sendError(HttpServletResponse.SC_UNAUTHORIZED, error.getMessage());
                 }
             }

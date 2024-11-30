@@ -25,6 +25,41 @@ VALUES (@email, @password, 'INACTIVE', GETDATE())
 SELECT @idx = @@IDENTITY
 GO
 
+-- FIND USER LOGIN --
+
+IF NOT EXISTS(SELECT *
+              FROM sys.objects
+              WHERE object_id = OBJECT_ID(N'psp_fetch_user_login')
+                AND type IN (N'P', N'PC'))
+    EXEC ('CREATE PROCEDURE psp_fetch_user_login AS BEGIN SET NOCOUNT ON; END')
+GO
+ALTER PROCEDURE psp_fetch_user_login(
+    @page INT,
+    @page_size INT,
+    @search_query VARCHAR(40))
+AS
+DECLARE @offset INT
+    SET @offset = (@page - 1) * @page_size
+
+    BEGIN TRANSACTION
+SELECT *
+FROM tbl_user_login
+WHERE (email LIKE '%' + @search_query + '%')
+  AND status <> 'DELETED'
+
+ORDER BY id DESC
+OFFSET @offset ROWS FETCH NEXT @page_size ROWS ONLY
+
+SELECT COUNT(*) AS count
+FROM tbl_user_login
+WHERE (email LIKE '%' + @search_query + '%')
+  AND status <> 'DELETED'
+    IF @@ERROR <> 0
+        ROLLBACK TRANSACTION;
+    ELSE
+        COMMIT TRANSACTION
+GO
+
 -- SET LAST LOGIN TIME --
 
 IF NOT EXISTS(SELECT *

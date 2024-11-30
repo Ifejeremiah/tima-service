@@ -7,9 +7,9 @@ import com.tima.exception.DuplicateEntityException;
 import com.tima.model.Mail;
 import com.tima.model.Otp;
 import com.tima.model.User;
+import com.tima.util.Encoder;
 import com.tima.util.JwtUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -18,21 +18,21 @@ public class AuthService {
     UserService userService;
     MailService mailService;
     OTPService otpService;
-    BCryptPasswordEncoder passwordEncoder;
+    Encoder encoder;
     JwtUtil jwtUtil;
 
-    public AuthService(UserService userService, MailService mailService, OTPService otpService, BCryptPasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
+    public AuthService(UserService userService, MailService mailService, OTPService otpService, Encoder encoder, JwtUtil jwtUtil) {
         this.userService = userService;
         this.mailService = mailService;
         this.otpService = otpService;
-        this.passwordEncoder = passwordEncoder;
+        this.encoder = encoder;
         this.jwtUtil = jwtUtil;
     }
 
     public UserCreateResponse register(User user) {
         try {
             checkEmailExists(user.getEmail());
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
+            user.setPassword(encoder.encodePassword(user.getPassword()));
             String otp = otpService.create(user.getEmail());
             mailService.sendMail(user.getEmail(), buildOTPMail(otp));
             return buildCreateResponse(user);
@@ -65,6 +65,7 @@ public class AuthService {
             checkUserExists(user);
             checkUserIsNotDeleted(user);
             validatePassword(loginRequest.getPassword(), user.getPassword());
+            userService.updateLastLogin(user.getId());
             return buildLoginResponse(user);
         } catch (Exception error) {
             log.error("Error authenticating user", error);
@@ -84,12 +85,12 @@ public class AuthService {
     }
 
     private void validatePassword(String rawPassword, String encodedPassword) {
-        if (!passwordEncoder.matches(rawPassword, encodedPassword))
+        if (!encoder.validatePassword(rawPassword, encodedPassword))
             throw new BadRequestException("Invalid credentials");
     }
 
     private void checkUserIsNotDeleted(User user) {
-        if (UserStatus.DELETED.equals(user.getUserStatus()))
+        if (UserStatus.DELETED.equals(user.getStatus()))
             throw new BadRequestException("Account blocked - contact administrator");
     }
 
@@ -110,7 +111,7 @@ public class AuthService {
             Otp otp = otpService.findByEmailAndOtp(user.getEmail(), otpRequest.getOtp());
             otpService.checkOTPExpiry(otp);
             otpService.delete(otp);
-            userService.activateEmail(user);
+            userService.activateEmail(user.getEmail());
             return buildLoginResponse(user);
         } catch (Exception error) {
             log.error("Error validating OTP", error);

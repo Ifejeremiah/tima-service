@@ -16,7 +16,8 @@ import java.util.Map;
 
 @Component
 public class UserDao extends BaseDao<User> {
-    SimpleJdbcCall findByEmail;
+    SimpleJdbcCall findByEmail,
+            setLastLogin;
 
     @Autowired
     public void setDataSource(DataSource dataSource) {
@@ -34,9 +35,12 @@ public class UserDao extends BaseDao<User> {
                 .withProcedureName("psp_fetch_user_login_by_email")
                 .returningResultSet(SINGLE_RESULT, BeanPropertyRowMapper.newInstance(User.class));
         findAllPaginated = new SimpleJdbcCall(jdbcTemplate)
-                .withProcedureName("psp_retrieve_paginated_all_users")
+                .withProcedureName("psp_fetch_user_login")
                 .returningResultSet(MULTIPLE_RESULT, BeanPropertyRowMapper.newInstance(User.class))
                 .returningResultSet(RESULT_COUNT, new RowCountMapper());
+        setLastLogin = new SimpleJdbcCall(jdbcTemplate)
+                .withProcedureName("psp_set_last_login_time")
+                .withReturnValue();
         update = new SimpleJdbcCall(jdbcTemplate)
                 .withProcedureName("psp_update_user_login")
                 .withReturnValue();
@@ -50,5 +54,10 @@ public class UserDao extends BaseDao<User> {
         Map<String, Object> m = this.findByEmail.execute(in);
         List<User> result = (List<User>) m.get(SINGLE_RESULT);
         return !result.isEmpty() ? result.get(0) : null;
+    }
+
+    public void setLastLogin(int id) throws DataAccessException {
+        SqlParameterSource in = (new MapSqlParameterSource()).addValue("id", id);
+        this.setLastLogin.execute(in);
     }
 }

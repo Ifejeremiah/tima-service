@@ -57,10 +57,4 @@ public class StudentController {
         studentService.update(id, updateRequest);
         return new Response<>("Student updated successfully");
     }
-
-    @DeleteMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Response<Student> delete(@PathVariable int id) {
-        studentService.delete(id);
-        return new Response<>("Student deleted successfully");
-    }
 }

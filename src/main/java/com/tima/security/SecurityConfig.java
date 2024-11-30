@@ -1,13 +1,11 @@
 package com.tima.security;
 
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import javax.servlet.http.HttpServletResponse;
@@ -30,11 +28,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.exceptionHandling().authenticationEntryPoint((request, response, authException) -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized"));
 
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
-    }
-
-    @Bean
-    public BCryptPasswordEncoder bCryptPasswordEncoder() {
-        return new BCryptPasswordEncoder();
     }
 
     @Override

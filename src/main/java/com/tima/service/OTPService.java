@@ -4,6 +4,7 @@ import com.tima.dao.OtpDao;
 import com.tima.exception.BadRequestException;
 import com.tima.exception.NotFoundException;
 import com.tima.model.Otp;
+import com.tima.util.DateUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -27,7 +28,7 @@ public class OTPService {
             Otp otp = new Otp();
             otp.setEmail(email);
             otp.setOtp(generatedOTP);
-            otp.setExpiresAt(new Date(System.currentTimeMillis() + 300000));
+            otp.setExpiresAt(new DateUtil(new Date(System.currentTimeMillis() + 300000)).getDateInGMT());
 
             otpDao.create(otp);
             return generatedOTP;
@@ -61,7 +62,9 @@ public class OTPService {
 
     public void checkOTPExpiry(Otp otp) {
         try {
-            boolean isExpired = otp.getExpiresAt().before(new Date());
+            Date currentDateTime = new DateUtil().parseDate(new DateUtil(new Date()).getDateInGMT());
+            boolean isExpired = new DateUtil().parseDate(otp.getExpiresAt()).before(currentDateTime);
+
             if (isExpired) throw new BadRequestException("This OTP is expired");
         } catch (Exception error) {
             log.error("Error checking OTP expiry", error);
