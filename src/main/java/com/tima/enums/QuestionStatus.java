@@ -1,6 +1,6 @@
 package com.tima.enums;
 
-public enum QuestionBankStatus {
+public enum QuestionStatus {
     EASY,
     MEDIUM,
     HARD

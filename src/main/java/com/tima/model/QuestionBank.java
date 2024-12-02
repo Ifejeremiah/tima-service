@@ -1,7 +1,6 @@
 package com.tima.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.tima.enums.QuestionBankStatus;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.validator.constraints.Length;
@@ -22,7 +21,7 @@ public class QuestionBank extends BaseObject {
     private String topic;
     @NotBlank(message = "Difficulty is required")
     @Length(min = 3, max = 10)
-    private QuestionBankStatus difficulty;
+    private String difficulty;
     @NotBlank(message = "Question is required")
     private String question;
     private Set<String> options;
