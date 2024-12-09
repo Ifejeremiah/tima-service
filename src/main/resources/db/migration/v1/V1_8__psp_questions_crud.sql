@@ -93,6 +93,49 @@ WHERE (subject LIKE '%' + @search_query + '%')
         COMMIT TRANSACTION
 GO
 
+-- FIND ALL QUESTION'S SUBJECTS --
+
+IF NOT EXISTS(SELECT *
+              FROM sys.objects
+              WHERE object_id = OBJECT_ID(N'psp_fetch_question_subjects')
+                AND type IN (N'P', N'PC'))
+    EXEC ('CREATE PROCEDURE psp_fetch_question_subjects AS BEGIN SET NOCOUNT ON; END')
+GO
+ALTER PROCEDURE psp_fetch_question_subjects
+AS
+
+    BEGIN TRANSACTION
+SELECT subject
+FROM tbl_questions
+ORDER BY subject
+    IF @@ERROR <> 0
+        ROLLBACK TRANSACTION;
+    ELSE
+        COMMIT TRANSACTION
+GO
+
+-- FIND ALL TOPICS BY QUESTION'S SUBJECT --
+
+IF NOT EXISTS(SELECT *
+              FROM sys.objects
+              WHERE object_id = OBJECT_ID(N'psp_fetch_topics_by_question_subject ')
+                AND type IN (N'P', N'PC'))
+    EXEC ('CREATE PROCEDURE psp_fetch_topics_by_question_subject  AS BEGIN SET NOCOUNT ON; END')
+GO
+ALTER PROCEDURE psp_fetch_topics_by_question_subject @subject VARCHAR(100)
+AS
+
+    BEGIN TRANSACTION
+SELECT topic
+FROM tbl_questions
+WHERE subject = @subject
+ORDER BY topic
+    IF @@ERROR <> 0
+        ROLLBACK TRANSACTION;
+    ELSE
+        COMMIT TRANSACTION
+GO
+
 -- FIND ALL QUESTIONS FOR QUIZ --
 
 IF NOT EXISTS(SELECT *
@@ -108,12 +151,12 @@ ALTER PROCEDURE psp_fetch_questions_for_quiz(
     @difficulty_level VARCHAR(7))
 AS
     BEGIN TRANSACTION
-SELECT TOP @page_size id,
-                      title,
-                      option_a,
-                      option_b,
-                      option_c,
-                      option_d
+SELECT TOP (@page_size) id,
+                        title,
+                        option_a,
+                        option_b,
+                        option_c,
+                        option_d
 FROM tbl_questions
 WHERE subject = @subject
   AND topic = @topic

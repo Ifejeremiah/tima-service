@@ -11,6 +11,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -81,6 +82,13 @@ public class AdviceController {
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     @ResponseBody
     public Response<MethodArgumentTypeMismatchException> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException e) {
+        return new Response<>(e.getMessage());
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public Response<MissingServletRequestParameterException> handleMissingServletRequestParameterException(MissingServletRequestParameterException e) {
         return new Response<>(e.getMessage());
     }
 
