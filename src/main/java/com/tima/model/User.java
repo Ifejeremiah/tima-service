@@ -1,6 +1,5 @@
 package com.tima.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.tima.enums.UserStatus;
 import lombok.Getter;
@@ -21,7 +20,6 @@ public class User extends BaseObject {
     private String email;
     @NotBlank(message = "Password is required")
     @Length(min = 8, max = 20)
-    @JsonIgnore
     private String password;
     private UserStatus status;
     private Boolean emailConfirmed;
