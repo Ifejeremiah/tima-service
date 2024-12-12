@@ -10,13 +10,15 @@ GO
 ALTER PROCEDURE [psp_create_quiz](
     @idx BIGINT = 0 OUTPUT,
     @student_id INT,
-    @number_of_questions INT)
+    @subject VARCHAR(100),
+    @topic VARCHAR(100),
+    @difficulty_level VARCHAR(7))
 AS
     SET NOCOUNT ON
     BEGIN TRANSACTION
 
-INSERT INTO tbl_quiz(student_id, number_of_questions, created_on)
-VALUES (@student_id, @number_of_questions, GETDATE())
+INSERT INTO tbl_quiz(student_id, subject, topic, difficulty_level, created_on)
+VALUES (@student_id, @subject, @topic, @difficulty_level, GETDATE())
     IF @@ERROR <> 0
         ROLLBACK TRANSACTION;
     ELSE
@@ -124,14 +126,16 @@ GO
 
 ALTER PROCEDURE [psp_update_quiz](
     @id INT,
-    @score INT)
+    @score INT,
+    @number_of_questions INT)
 AS
     SET NOCOUNT ON
     BEGIN TRANSACTION
 
 UPDATE tbl_quiz
-SET score           = @score,
-    last_updated_on = GETDATE()
+SET score               = @score,
+    number_of_questions = @number_of_questions,
+    last_updated_on     = GETDATE()
 WHERE id = @id
     IF @@ERROR <> 0
         ROLLBACK TRANSACTION;

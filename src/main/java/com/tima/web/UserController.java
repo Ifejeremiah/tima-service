@@ -21,7 +21,7 @@ public class UserController {
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public Response<Page<User>> findAll(
-            @RequestParam(name = "page_num", defaultValue = "1") int page,
+            @RequestParam(name = "page_num", defaultValue = "0") int page,
             @RequestParam(name = "page_size", defaultValue = "10") int size,
             @RequestParam(name = "search_query", required = false) String searchQuery) {
         Response<Page<User>> response = new Response<>();

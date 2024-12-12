@@ -74,7 +74,7 @@ public class AdviceController {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     @ResponseBody
-    public Response<HttpMessageNotReadableException> handleHttpMediaTypeNotSupportedException(HttpMessageNotReadableException e) {
+    public Response<HttpMessageNotReadableException> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
         return new Response<>(e.getMessage());
     }
 

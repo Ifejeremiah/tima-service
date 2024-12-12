@@ -2,7 +2,6 @@ package com.tima.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.tima.enums.QuestionStatus;
-import com.tima.util.EnumNamePattern;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.validator.constraints.Length;
@@ -19,7 +18,6 @@ public class Question extends BaseObject {
     @NotBlank(message = "Topic is required")
     @Length(min = 3, max = 100)
     private String topic;
-    @EnumNamePattern(regexp = "EASY|MEDIUM|HARD")
     private QuestionStatus difficultyLevel;
     @NotBlank(message = "Title is required")
     @Length(min = 3)
