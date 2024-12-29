@@ -85,7 +85,8 @@ public class QuizService {
     public void submit(int id, List<QuizResponse> responses) {
         try {
             if (responses.isEmpty()) throw new BadRequestException("Response list is empty");
-
+            Quiz quiz = this.findById(id);
+            if (quiz.getScore() != null) throw new BadRequestException("Quiz has been submitted already");
             QuizMarker marker = new QuizMarker(responses, this, questionService, questionQuizService, id);
             executor.execute(marker);
         } catch (Exception error) {

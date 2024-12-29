@@ -52,9 +52,9 @@ public class StudentController {
         return response;
     }
 
-    @PutMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public Response<Student> update(@PathVariable int id, @RequestBody @Validated Student updateRequest) {
-        studentService.update(id, updateRequest);
-        return new Response<>("Student updated successfully");
+    @PutMapping(path = "/me", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public Response<Student> update(@RequestBody @Validated Student updateRequest) {
+        studentService.update(updateRequest);
+        return new Response<>("Student updated by current user successfully");
     }
 }

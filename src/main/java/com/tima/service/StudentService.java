@@ -68,13 +68,13 @@ public class StudentService extends BaseService {
         }
     }
 
-    public void update(int id, Student update) {
+    public void update(Student update) {
         try {
-            Student existing = this.findById(id);
+            Student existing = this.findByUserId();
             update.setId(existing.getId());
             studentDao.update(update);
         } catch (Exception error) {
-            log.error("Error updating student", error);
+            log.error("Error updating student by current user id", error);
             throw error;
         }
     }

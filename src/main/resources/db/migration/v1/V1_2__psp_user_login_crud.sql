@@ -42,7 +42,7 @@ DECLARE @offset INT
     SET @offset = (@page - 1) * @page_size
 
     BEGIN TRANSACTION
-SELECT *
+SELECT id, email, status, email_confirmed
 FROM tbl_user_login
 WHERE (email LIKE '%' + @search_query + '%')
   AND status <> 'DELETED'
@@ -125,7 +125,7 @@ AS
     SET NOCOUNT ON
     BEGIN TRANSACTION
 
-SELECT *
+SELECT id, email, status, email_confirmed, last_login_on, created_on, last_updated_on
 FROM tbl_user_login
 WHERE id = @id
   AND status <> 'DELETED'
