@@ -1,0 +1,8 @@
+<service>
+    <id>tima-service</id>
+    <name>Tima Service</name>
+    <description>Tima Service. Built and maintained by Ife Jeremiah (ifedun.jeremiah@gmail.com)
+    </description>
+    <executable>java</executable>
+    <arguments>-jar tima-service-1.0.0.jar</arguments>
+</service>

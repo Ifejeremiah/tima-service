@@ -4,3 +4,5 @@
 src/main/resources/application-default.properties
 .DS_Store
 /src/.DS_Store
+/wrapper/*.log
+/wrapper/*.jar
