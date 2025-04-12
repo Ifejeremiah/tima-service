@@ -6,3 +6,4 @@ src/main/resources/application-default.properties
 /src/.DS_Store
 /wrapper/*.log
 /wrapper/*.jar
+*.zip
