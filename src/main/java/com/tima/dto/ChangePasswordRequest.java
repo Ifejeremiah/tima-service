@@ -10,6 +10,9 @@ import javax.validation.constraints.NotBlank;
 @Setter
 public class ChangePasswordRequest {
     @Length(min = 8, max = 20)
+    @NotBlank(message = "Old password is required")
+    private String oldPassword;
+    @Length(min = 8, max = 20)
     @NotBlank(message = "New password is required")
     private String newPassword;
 }

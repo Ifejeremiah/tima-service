@@ -17,7 +17,8 @@ import java.util.Map;
 @Component
 public class UserDao extends BaseDao<User> {
     SimpleJdbcCall findByEmail,
-            setLastLogin;
+            setLastLogin,
+            updatePassword;
 
     @Autowired
     public void setDataSource(DataSource dataSource) {
@@ -47,6 +48,9 @@ public class UserDao extends BaseDao<User> {
         delete = new SimpleJdbcCall(jdbcTemplate)
                 .withProcedureName("psp_delete_user_login")
                 .withReturnValue();
+        updatePassword = new SimpleJdbcCall(jdbcTemplate)
+                .withProcedureName("psp_update_user_password")
+                .withReturnValue();
     }
 
     public User findByEmail(String email) throws DataAccessException {
@@ -59,5 +63,10 @@ public class UserDao extends BaseDao<User> {
     public void setLastLogin(int id) throws DataAccessException {
         SqlParameterSource in = (new MapSqlParameterSource()).addValue("id", id);
         this.setLastLogin.execute(in);
+    }
+
+    public void updatePassword(int id, String password) {
+        SqlParameterSource in = (new MapSqlParameterSource()).addValue("id", id).addValue("password", password);
+        this.updatePassword.execute(in);
     }
 }

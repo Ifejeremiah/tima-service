@@ -3,8 +3,10 @@ package com.tima.service;
 import com.tima.dao.UserDao;
 import com.tima.dto.ChangePasswordRequest;
 import com.tima.enums.UserStatus;
+import com.tima.exception.BadRequestException;
 import com.tima.exception.DuplicateEntityException;
 import com.tima.exception.NotFoundException;
+import com.tima.model.Mail;
 import com.tima.model.Page;
 import com.tima.model.User;
 import com.tima.util.Encoder;
@@ -16,10 +18,12 @@ import org.springframework.stereotype.Service;
 public class UserService extends BaseService {
     UserDao userDao;
     Encoder encoder;
+    MailService mailService;
 
-    public UserService(UserDao userDao, Encoder encoder) {
+    public UserService(UserDao userDao, Encoder encoder, MailService mailService) {
         this.userDao = userDao;
         this.encoder = encoder;
+        this.mailService = mailService;
     }
 
     public long create(User user) {
@@ -119,13 +123,24 @@ public class UserService extends BaseService {
 
     public void changePassword(ChangePasswordRequest passwordRequest) {
         try {
-            User user = this.findById(fetchCurrentUserId());
-            user.setPassword(encoder.encodePassword(passwordRequest.getNewPassword()));
-            userDao.update(user);
+            User user = this.findByEmail(fetchCurrentUserEmail());
+            if (!encoder.validatePassword(passwordRequest.getOldPassword(), user.getPassword()))
+                throw new BadRequestException("Old password is incorrect");
+            if (encoder.validatePassword(passwordRequest.getNewPassword(), user.getPassword()))
+                throw new BadRequestException("New password is same as old password");
+            userDao.updatePassword(fetchCurrentUserId(), encoder.encodePassword(passwordRequest.getNewPassword()));
+            mailService.sendMail(user.getEmail(), composeMail());
         } catch (Exception error) {
             log.error("Error changing user password", error);
             throw error;
         }
+    }
+
+    private Mail composeMail() {
+        Mail mail = new Mail();
+        mail.setSubject("Password change update");
+        mail.setContext("This is to notify you that your password just got changed.");
+        return mail;
     }
 
     public void deleteByCurrentUser() {

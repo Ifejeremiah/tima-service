@@ -148,7 +148,6 @@ GO
 
 ALTER PROCEDURE [psp_update_user_login](
     @id INT,
-    @password VARCHAR(225),
     @status VARCHAR(15),
     @email_confirmed BIT)
 AS
@@ -156,8 +155,7 @@ AS
     BEGIN TRANSACTION
 
 UPDATE tbl_user_login
-SET password        = @password,
-    status          = @status,
+SET status          = @status,
     email_confirmed = @email_confirmed,
     last_updated_on = GETDATE()
 WHERE id = @id
@@ -196,4 +194,30 @@ WHERE id = @id
 
 GO
 
+-- UPDATE USER PASSWORD --
 
+IF NOT EXISTS(SELECT *
+              FROM sys.objects
+              WHERE object_id = OBJECT_ID(N'psp_update_user_password')
+                AND type IN (N'P', N'PC'))
+    EXEC ('CREATE PROCEDURE psp_update_user_password AS BEGIN SET NOCOUNT ON; END')
+GO
+
+ALTER PROCEDURE [psp_update_user_password](
+    @id INT,
+    @password VARCHAR(225))
+AS
+    SET NOCOUNT ON
+    BEGIN TRANSACTION
+
+UPDATE tbl_user_login
+SET password        = @password,
+    last_updated_on = GETDATE()
+WHERE id = @id
+    IF @@ERROR <> 0
+        ROLLBACK TRANSACTION;
+    ELSE
+        COMMIT TRANSACTION;
+
+    RETURN @@Error
+GO
