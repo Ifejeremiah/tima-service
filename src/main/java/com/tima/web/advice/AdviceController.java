@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -89,6 +90,13 @@ public class AdviceController {
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     @ResponseBody
     public Response<MissingServletRequestParameterException> handleMissingServletRequestParameterException(MissingServletRequestParameterException e) {
+        return new Response<>(e.getMessage());
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    @ResponseStatus(value = HttpStatus.METHOD_NOT_ALLOWED)
+    @ResponseBody
+    public Response<HttpRequestMethodNotSupportedException> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
         return new Response<>(e.getMessage());
     }
 
