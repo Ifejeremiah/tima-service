@@ -1,6 +1,6 @@
 package com.tima.enums;
 
-public enum QuestionStatus {
+public enum QuestionDifficultyLevel {
     EASY,
     MEDIUM,
     HARD

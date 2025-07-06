@@ -1,7 +1,7 @@
 package com.tima.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.tima.enums.QuestionStatus;
+import com.tima.enums.QuestionDifficultyLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.validator.constraints.Length;
@@ -19,7 +19,7 @@ public class Quiz extends BaseObject {
     @NotBlank(message = "Topic is required")
     @Length(min = 3, max = 100)
     private String topic;
-    private QuestionStatus difficultyLevel;
+    private QuestionDifficultyLevel questionDifficultyLevel;
     private Integer score;
     private Integer numberOfQuestions;
 }

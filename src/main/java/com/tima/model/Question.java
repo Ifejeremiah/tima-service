@@ -1,40 +1,24 @@
 package com.tima.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.tima.enums.QuestionStatus;
+import com.tima.enums.ExamType;
+import com.tima.enums.QuestionDifficultyLevel;
+import com.tima.enums.QuestionMode;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.validator.constraints.Length;
 
-import javax.validation.constraints.NotBlank;
+import java.util.Set;
 
 @Getter
 @Setter
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class Question extends BaseObject {
-    @NotBlank(message = "Subject is required")
-    @Length(min = 3, max = 100)
-    private String subject;
-    @NotBlank(message = "Topic is required")
-    @Length(min = 3, max = 100)
-    private String topic;
-    private QuestionStatus difficultyLevel;
-    @NotBlank(message = "Title is required")
-    @Length(min = 3)
-    private String title;
-    @NotBlank(message = "Option A is required")
-    @Length(min = 3, max = 225)
-    private String optionA;
-    @NotBlank(message = "Option B is required")
-    @Length(min = 3, max = 225)
-    private String optionB;
-    @NotBlank(message = "Option C is required")
-    @Length(min = 3, max = 225)
-    private String optionC;
-    @NotBlank(message = "Option D is required")
-    @Length(min = 3, max = 225)
-    private String optionD;
-    @NotBlank(message = "Answer is required")
-    @Length(min = 3, max = 225)
+    private String question;
+    private Set<String> options;
     private String answer;
+    private String subject;
+    private String topic;
+    private QuestionDifficultyLevel difficultyLevel;
+    private QuestionMode mode;
+    private ExamType examType;
 }

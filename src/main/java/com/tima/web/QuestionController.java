@@ -1,5 +1,6 @@
 package com.tima.web;
 
+import com.tima.dto.QuestionCreateRequest;
 import com.tima.dto.Response;
 import com.tima.model.Page;
 import com.tima.model.Question;
@@ -22,8 +23,8 @@ public class QuestionController {
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(value = HttpStatus.CREATED)
-    public Response<Question> create(@Validated @RequestBody Question question) {
-        questionService.create(question);
+    public Response<Question> create(@Validated @RequestBody QuestionCreateRequest request) {
+        questionService.create(request);
         return new Response<>("Question created successfully");
     }
 

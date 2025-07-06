@@ -1,10 +1,17 @@
 package com.tima.service;
 
 import com.tima.dao.QuestionDao;
+import com.tima.dto.QuestionCreateRequest;
+import com.tima.enums.ExamType;
+import com.tima.enums.QuestionDifficultyLevel;
+import com.tima.enums.QuestionMode;
+import com.tima.exception.BadRequestException;
 import com.tima.exception.NotFoundException;
 import com.tima.model.Page;
 import com.tima.model.Question;
+import com.tima.util.AuthUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,14 +28,30 @@ public class QuestionService extends BaseService {
         this.userService = userService;
     }
 
-    public void create(Question question) {
+    public void create(QuestionCreateRequest request) {
         try {
-            question.setCreatedBy(getCurrentUserEmail());
-            questionDao.create(question);
+            validateQuestionOptions(request);
+            questionDao.create(buildQuestion(request));
         } catch (Exception error) {
             log.error("Error creating question", error);
             throw error;
         }
+    }
+
+    private void validateQuestionOptions(QuestionCreateRequest request){
+        if (request.getOptions() == null || request.getOptions().isEmpty()) {
+            throw new BadRequestException("Options are required to create a question");
+        }
+    }
+
+    private Question buildQuestion(QuestionCreateRequest request){
+        Question question = new Question();
+        BeanUtils.copyProperties(request, question);
+        question.setDifficultyLevel(QuestionDifficultyLevel.valueOf(request.getDifficultyLevel()));
+        question.setMode(QuestionMode.valueOf(request.getMode()));
+        question.setExamType(ExamType.valueOf(request.getExamType()));
+        question.setCreatedBy(AuthUtil.getCurrentUserEmail());
+        return question;
     }
 
     public Page<Question> findAll(int page, int size, String searchQuery) {

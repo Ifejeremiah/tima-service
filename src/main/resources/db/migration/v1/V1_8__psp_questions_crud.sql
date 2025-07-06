@@ -9,40 +9,37 @@ GO
 
 ALTER PROCEDURE [psp_create_question](
     @idx BIGINT = 0 OUTPUT,
+    @question VARCHAR(MAX),
+    @options VARCHAR(MAX),
+    @answer VARCHAR(225),
     @subject VARCHAR(100),
     @topic VARCHAR(100),
     @difficulty_level VARCHAR(7),
-    @title VARCHAR(MAX),
-    @option_a VARCHAR(225),
-    @option_b VARCHAR(225),
-    @option_c VARCHAR(225),
-    @option_d VARCHAR(225),
-    @answer VARCHAR(225),
+    @mode VARCHAR(20),
+    @exam_type VARCHAR(20),
     @created_by VARCHAR(70))
 AS
     SET NOCOUNT ON
     BEGIN TRANSACTION
 
-INSERT INTO tbl_questions(subject,
+INSERT INTO tbl_questions(question,
+                          options,
+                          answer,
+                          subject,
                           topic,
                           difficulty_level,
-                          title,
-                          option_a,
-                          option_b,
-                          option_c,
-                          option_d,
-                          answer,
+                          mode,
+                          exam_type,
                           created_by,
                           created_on)
-VALUES (@subject,
+VALUES (@question,
+        @options,
+        @answer,
+        @subject,
         @topic,
         @difficulty_level,
-        @title,
-        @option_a,
-        @option_b,
-        @option_c,
-        @option_d,
-        @answer,
+        @mode,
+        @exam_type,
         @created_by,
         GETDATE())
     IF @@ERROR <> 0
@@ -64,29 +61,46 @@ GO
 ALTER PROCEDURE psp_fetch_questions(
     @page INT,
     @page_size INT,
-    @search_query VARCHAR(40))
+    @subject VARCHAR(100),
+    @mode VARCHAR(20),
+    @difficulty_level VARCHAR(7),
+    @exam_type VARCHAR(20),
+    @search_query VARCHAR(40),
+    @start_date DATE,
+    @end_date DATE
+)
 AS
 DECLARE @offset INT
     SET @offset = (@page - 1) * @page_size
 
     BEGIN TRANSACTION
 SELECT id,
+       question,
        subject,
        topic,
-       difficulty_level
+       difficulty_level,
+       mode,
+       exam_type,
+       created_on
 FROM tbl_questions
-WHERE (subject LIKE '%' + @search_query + '%')
-   OR (topic LIKE '%' + @search_query + '%')
-   OR (difficulty_level LIKE '%' + @search_query + '%')
+WHERE (subject LIKE '%' + @subject + '%')
+  AND (mode LIKE '%' + @mode + '%')
+  AND (difficulty_level LIKE '%' + @difficulty_level + '%')
+  AND (exam_type LIKE '%' + @exam_type + '%')
+  AND (question LIKE '%' + @search_query + '%')
+  AND CAST(created_on AS DATE) BETWEEN (CASE WHEN @start_date IS NULL THEN '2001-08-23' ELSE @start_date END) AND (CASE WHEN @end_date IS NULL THEN GETDATE() ELSE @end_date END)
 
 ORDER BY id DESC
 OFFSET @offset ROWS FETCH NEXT @page_size ROWS ONLY
 
 SELECT COUNT(*) AS count
 FROM tbl_questions
-WHERE (subject LIKE '%' + @search_query + '%')
-   OR (topic LIKE '%' + @search_query + '%')
-   OR (difficulty_level LIKE '%' + @search_query + '%')
+WHERE (subject LIKE '%' + @subject + '%')
+  AND (mode LIKE '%' + @mode + '%')
+  AND (difficulty_level LIKE '%' + @difficulty_level + '%')
+  AND (exam_type LIKE '%' + @exam_type + '%')
+  AND (question LIKE '%' + @search_query + '%')
+  AND CAST(created_on AS DATE) BETWEEN (CASE WHEN @start_date IS NULL THEN '2001-08-23' ELSE @start_date END) AND (CASE WHEN @end_date IS NULL THEN GETDATE() ELSE @end_date END)
     IF @@ERROR <> 0
         ROLLBACK TRANSACTION;
     ELSE
@@ -152,11 +166,7 @@ ALTER PROCEDURE psp_fetch_questions_for_quiz(
 AS
     BEGIN TRANSACTION
 SELECT TOP (@page_size) id,
-                        title,
-                        option_a,
-                        option_b,
-                        option_c,
-                        option_d
+                        question
 FROM tbl_questions
 WHERE subject = @subject
   AND topic = @topic
@@ -207,11 +217,7 @@ ALTER PROCEDURE [psp_update_question](
     @subject VARCHAR(100),
     @topic VARCHAR(100),
     @difficulty_level VARCHAR(7),
-    @title VARCHAR(MAX),
-    @option_a VARCHAR(225),
-    @option_b VARCHAR(225),
-    @option_c VARCHAR(225),
-    @option_d VARCHAR(225),
+    @question VARCHAR(MAX),
     @answer VARCHAR(225),
     @last_updated_by VARCHAR(70))
 AS
@@ -222,11 +228,7 @@ UPDATE tbl_questions
 SET subject          = @subject,
     topic            = @topic,
     difficulty_level = @difficulty_level,
-    title            = @title,
-    option_a         = @option_a,
-    option_b         = @option_b,
-    option_c         = @option_c,
-    option_d         = @option_d,
+    question            = @question,
     answer           = @answer,
     last_updated_by  = @last_updated_by,
     last_updated_on  = GETDATE()
