@@ -2,6 +2,7 @@ package com.tima.web;
 
 import com.tima.dto.QuestionCreateRequest;
 import com.tima.dto.Response;
+import com.tima.dto.UploadQuestionResponse;
 import com.tima.model.Page;
 import com.tima.model.Question;
 import com.tima.service.QuestionService;
@@ -9,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -26,6 +28,14 @@ public class QuestionController {
     public Response<Question> create(@Validated @RequestBody QuestionCreateRequest request) {
         questionService.create(request);
         return new Response<>("Question created successfully");
+    }
+
+    @PostMapping(path = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public Response<UploadQuestionResponse> upload(@RequestParam MultipartFile file) {
+        Response<UploadQuestionResponse> response = new Response<>();
+        response.setData(questionService.upload(file));
+        response.setMessage("Bulk questions uploaded successfully");
+        return response;
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)

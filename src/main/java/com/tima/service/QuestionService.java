@@ -2,6 +2,7 @@ package com.tima.service;
 
 import com.tima.dao.QuestionDao;
 import com.tima.dto.QuestionCreateRequest;
+import com.tima.dto.UploadQuestionResponse;
 import com.tima.enums.ExamType;
 import com.tima.enums.QuestionDifficultyLevel;
 import com.tima.enums.QuestionMode;
@@ -13,6 +14,7 @@ import com.tima.util.AuthUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -22,10 +24,14 @@ public class QuestionService extends BaseService {
 
     QuestionDao questionDao;
     UserService userService;
+    FileService fileService;
+    JobService jobService;
 
-    public QuestionService(QuestionDao questionDao, UserService userService) {
+    public QuestionService(QuestionDao questionDao, UserService userService, FileService fileService, JobService jobService) {
         this.questionDao = questionDao;
         this.userService = userService;
+        this.fileService = fileService;
+        this.jobService = jobService;
     }
 
     public void create(QuestionCreateRequest request) {
@@ -52,6 +58,19 @@ public class QuestionService extends BaseService {
         question.setExamType(ExamType.valueOf(request.getExamType()));
         question.setCreatedBy(AuthUtil.getCurrentUserEmail());
         return question;
+    }
+
+    public UploadQuestionResponse upload(MultipartFile file){
+        checkIfFileIsEmpty(file);
+        Long jobId = jobService.create();
+        fileService.saveFile(file, jobId);
+        return new UploadQuestionResponse(jobId);
+    }
+
+    private void checkIfFileIsEmpty(MultipartFile file) {
+        if (file.isEmpty()) {
+            throw new BadRequestException("Uploaded file should not be empty");
+        }
     }
 
     public Page<Question> findAll(int page, int size, String searchQuery) {

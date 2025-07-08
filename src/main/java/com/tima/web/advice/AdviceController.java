@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -97,6 +98,13 @@ public class AdviceController {
     @ResponseStatus(value = HttpStatus.METHOD_NOT_ALLOWED)
     @ResponseBody
     public Response<HttpRequestMethodNotSupportedException> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
+        return new Response<>(e.getMessage());
+    }
+
+    @ExceptionHandler(MissingServletRequestPartException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public Response<MissingServletRequestPartException> handleMissingServletRequestPartException(MissingServletRequestPartException e) {
         return new Response<>(e.getMessage());
     }
 
