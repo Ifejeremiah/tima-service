@@ -31,8 +31,8 @@ public class FileService {
 
     private Path createFile(Long id) {
         try {
-            Path jobInputDir = Files.createDirectories(Paths.get(location, id.toString()));
-            return jobInputDir.resolve("file_upload.txt");
+            Path dir = Files.createDirectories(Paths.get(location, id.toString()));
+            return dir.resolve("file_upload.txt");
         } catch (Exception error) {
             throw new BadRequestException("Error creating file", error);
         }

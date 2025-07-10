@@ -6,11 +6,12 @@ IF EXISTS (SELECT 1
 ELSE
     CREATE TABLE tbl_jobs
     (
-        id              INT IDENTITY (1,1) PRIMARY KEY,
-        status          VARCHAR(20) NOT NULL,
-        status_message  VARCHAR(MAX),
-        created_by      VARCHAR(70) NOT NULL,
-        created_on      DATETIME    NOT NULL,
-        last_updated_on DATETIME,
+        id                 INT IDENTITY (1,1) PRIMARY KEY,
+        status             VARCHAR(20)  NOT NULL,
+        status_message     VARCHAR(MAX),
+        original_file_name VARCHAR(155) NOT NULL,
+        created_by         VARCHAR(70)  NOT NULL,
+        created_on         DATETIME     NOT NULL,
+        last_updated_on    DATETIME,
     )
 GO

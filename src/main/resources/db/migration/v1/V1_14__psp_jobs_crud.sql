@@ -10,16 +10,18 @@ GO
 ALTER PROCEDURE [psp_create_job](
     @idx BIGINT = 0 OUTPUT,
     @status VARCHAR(20),
-    @created_by VARCHAR(70),
-    @created_on DATETIME)
+    @original_file_name VARCHAR(155),
+    @created_by VARCHAR(70))
 AS
     SET NOCOUNT ON
     BEGIN TRANSACTION
 
 INSERT INTO tbl_jobs (status,
+                      original_file_name,
                       created_by,
                       created_on)
 VALUES (@status,
+        @original_file_name,
         @created_by,
         GETDATE())
     IF @@ERROR <> 0
@@ -41,13 +43,15 @@ GO
 
 ALTER PROCEDURE [psp_update_job_status](
     @id INT,
-    @status VARCHAR(20))
+    @status VARCHAR(20),
+    @status_message VARCHAR(MAX))
 AS
     SET NOCOUNT ON
     BEGIN TRANSACTION
 
 UPDATE tbl_jobs
-SET status = @status,
+SET status          = @status,
+    status_message  = @status_message,
     last_updated_on = GETDATE()
 WHERE id = @id
     IF @@ERROR <> 0
@@ -57,48 +61,28 @@ WHERE id = @id
 
 GO
 
--- UPDATE JOB STATUS MESSAGE --
+-- FIND JOBS FOR PROCESSING --
 
 IF NOT EXISTS(SELECT *
               FROM sys.objects
-              WHERE object_id = OBJECT_ID(N'psp_update_job_status_message')
+              WHERE object_id = OBJECT_ID(N'psp_find_jobs_for_processing')
                 AND type IN (N'P', N'PC'))
-    EXEC ('CREATE PROCEDURE psp_update_job_status_message AS BEGIN SET NOCOUNT ON; END')
+    EXEC ('CREATE PROCEDURE psp_find_jobs_for_processing AS BEGIN SET NOCOUNT ON; END')
 GO
 
-ALTER PROCEDURE [psp_update_job_status_message](
-    @id INT,
-    @status_message  VARCHAR(MAX))
+ALTER PROCEDURE [psp_find_jobs_for_processing](
+    @fetch_count INT,
+    @amnesty_time INT)
 AS
     SET NOCOUNT ON
     BEGIN TRANSACTION
 
-UPDATE tbl_jobs
-SET status_message = @status_message
-WHERE id = @id
-    IF @@ERROR <> 0
-        ROLLBACK TRANSACTION;
-    ELSE
-        COMMIT TRANSACTION;
-
-GO
-
--- FIND ALL NEW JOBS --
-
-IF NOT EXISTS(SELECT *
-              FROM sys.objects
-              WHERE object_id = OBJECT_ID(N'psp_find_all_new_jobs')
-                AND type IN (N'P', N'PC'))
-    EXEC ('CREATE PROCEDURE psp_find_all_new_jobs AS BEGIN SET NOCOUNT ON; END')
-GO
-
-ALTER PROCEDURE [psp_find_all_new_jobs]
-AS
-    SET NOCOUNT ON
-    BEGIN TRANSACTION
-
-SELECT * FROM tbl_jobs WHERE status = 'NEW'
-
+UPDATE TOP (@fetch_count) tbl_jobs
+SET status          = 'PROCESSING',
+    last_updated_on = GETDATE()
+OUTPUT inserted.*
+WHERE status = 'NEW'
+   OR (status = 'PROCESSING' AND DATEDIFF(ss, last_updated_on, GETDATE()) > @amnesty_time)
     IF @@ERROR <> 0
         ROLLBACK TRANSACTION;
     ELSE
@@ -120,8 +104,9 @@ AS
     SET NOCOUNT ON
     BEGIN TRANSACTION
 
-SELECT * FROM tbl_jobs WHERE id = @id
-
+SELECT *
+FROM tbl_jobs
+WHERE id = @id
     IF @@ERROR <> 0
         ROLLBACK TRANSACTION;
     ELSE

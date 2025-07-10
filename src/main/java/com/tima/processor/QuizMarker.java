@@ -1,4 +1,4 @@
-package com.tima.io;
+package com.tima.processor;
 
 import com.tima.dto.QuizResponse;
 import com.tima.exception.BadRequestException;

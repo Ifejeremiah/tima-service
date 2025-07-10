@@ -8,5 +8,6 @@ import lombok.Setter;
 @Setter
 public class Job extends BaseObject {
     private JobStatus status;
-    private String errorFileName;
+    private String statusMessage;
+    private String originalFileName;
 }

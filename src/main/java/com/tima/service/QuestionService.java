@@ -4,10 +4,12 @@ import com.tima.dao.QuestionDao;
 import com.tima.dto.QuestionCreateRequest;
 import com.tima.dto.UploadQuestionResponse;
 import com.tima.enums.ExamType;
+import com.tima.enums.JobStatus;
 import com.tima.enums.QuestionDifficultyLevel;
 import com.tima.enums.QuestionMode;
 import com.tima.exception.BadRequestException;
 import com.tima.exception.NotFoundException;
+import com.tima.model.Job;
 import com.tima.model.Page;
 import com.tima.model.Question;
 import com.tima.util.AuthUtil;
@@ -44,13 +46,13 @@ public class QuestionService extends BaseService {
         }
     }
 
-    private void validateQuestionOptions(QuestionCreateRequest request){
+    private void validateQuestionOptions(QuestionCreateRequest request) {
         if (request.getOptions() == null || request.getOptions().isEmpty()) {
-            throw new BadRequestException("Options are required to create a question");
+            throw new BadRequestException("Options were not provided");
         }
     }
 
-    private Question buildQuestion(QuestionCreateRequest request){
+    private Question buildQuestion(QuestionCreateRequest request) {
         Question question = new Question();
         BeanUtils.copyProperties(request, question);
         question.setDifficultyLevel(QuestionDifficultyLevel.valueOf(request.getDifficultyLevel()));
@@ -60,11 +62,24 @@ public class QuestionService extends BaseService {
         return question;
     }
 
-    public UploadQuestionResponse upload(MultipartFile file){
-        checkIfFileIsEmpty(file);
-        Long jobId = jobService.create();
-        fileService.saveFile(file, jobId);
-        return new UploadQuestionResponse(jobId);
+    public UploadQuestionResponse upload(MultipartFile file) {
+        try {
+            checkIfFileIsEmpty(file);
+            Long jobId = buildAndCreateJob(file.getOriginalFilename());
+            fileService.saveFile(file, jobId);
+            return new UploadQuestionResponse(jobId);
+        } catch (Exception error) {
+            log.error("Error uploading file", error);
+            throw error;
+        }
+    }
+
+    private Long buildAndCreateJob(String originalFileName) {
+        Job job = new Job();
+        job.setStatus(JobStatus.NEW);
+        job.setOriginalFileName(originalFileName);
+        job.setCreatedBy(AuthUtil.getCurrentUserEmail());
+        return jobService.create(job);
     }
 
     private void checkIfFileIsEmpty(MultipartFile file) {
