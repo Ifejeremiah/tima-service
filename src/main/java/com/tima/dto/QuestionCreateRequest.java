@@ -6,7 +6,7 @@ import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
-import java.util.Set;
+import java.util.LinkedHashSet;
 
 @Getter
 @Setter
@@ -14,7 +14,7 @@ public class QuestionCreateRequest {
     @NotBlank(message = "Question is required")
     @Length(min = 10)
     private String question;
-    private Set<String> options;
+    private LinkedHashSet<String> options;
     @NotBlank(message = "Answer is required")
     @Length(min = 3, max = 225)
     private String answer;

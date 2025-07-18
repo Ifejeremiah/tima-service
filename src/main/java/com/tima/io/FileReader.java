@@ -13,10 +13,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.LinkedHashSet;
 
-public class FileReader {
+public final class FileReader {
     private final LineNumberReader reader;
 
     public FileReader(InputStream in) {
@@ -94,8 +93,8 @@ public class FileReader {
         question.setStatus(JobStatus.SUCCESSFUL);
     }
 
-    private Set<String> convertStringArrayToSet(String[] fields) {
+    private LinkedHashSet<String> convertStringArrayToSet(String[] fields) {
         String[] optionList = fields[1].trim().split("\\|");
-        return new HashSet<>(Arrays.asList(optionList));
+        return new LinkedHashSet<>(Arrays.asList(optionList));
     }
 }

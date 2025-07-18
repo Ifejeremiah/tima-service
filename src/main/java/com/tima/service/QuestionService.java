@@ -4,12 +4,10 @@ import com.tima.dao.QuestionDao;
 import com.tima.dto.QuestionCreateRequest;
 import com.tima.dto.UploadQuestionResponse;
 import com.tima.enums.ExamType;
-import com.tima.enums.JobStatus;
 import com.tima.enums.QuestionDifficultyLevel;
 import com.tima.enums.QuestionMode;
 import com.tima.exception.BadRequestException;
 import com.tima.exception.NotFoundException;
-import com.tima.model.Job;
 import com.tima.model.Page;
 import com.tima.model.Question;
 import com.tima.util.AuthUtil;
@@ -25,13 +23,13 @@ import java.util.List;
 public class QuestionService extends BaseService {
 
     QuestionDao questionDao;
-    UserService userService;
+    QuestionOptionsService questionOptionsService;
     FileService fileService;
     JobService jobService;
 
-    public QuestionService(QuestionDao questionDao, UserService userService, FileService fileService, JobService jobService) {
+    public QuestionService(QuestionDao questionDao, QuestionOptionsService questionOptionsService, FileService fileService, JobService jobService) {
         this.questionDao = questionDao;
-        this.userService = userService;
+        this.questionOptionsService = questionOptionsService;
         this.fileService = fileService;
         this.jobService = jobService;
     }
@@ -39,7 +37,11 @@ public class QuestionService extends BaseService {
     public void create(QuestionCreateRequest request) {
         try {
             validateQuestionOptions(request);
-            questionDao.create(buildQuestion(request));
+            Question question = transformQuestion(request);
+            question.setCreatedBy(AuthUtil.getCurrentUserEmail());
+            int questionId = (int) questionDao.create(question);
+            question.setId(questionId);
+            questionOptionsService.create(question);
         } catch (Exception error) {
             log.error("Error creating question", error);
             throw error;
@@ -52,34 +54,25 @@ public class QuestionService extends BaseService {
         }
     }
 
-    private Question buildQuestion(QuestionCreateRequest request) {
+    private Question transformQuestion(QuestionCreateRequest request) {
         Question question = new Question();
         BeanUtils.copyProperties(request, question);
         question.setDifficultyLevel(QuestionDifficultyLevel.valueOf(request.getDifficultyLevel()));
         question.setMode(QuestionMode.valueOf(request.getMode()));
         question.setExamType(ExamType.valueOf(request.getExamType()));
-        question.setCreatedBy(AuthUtil.getCurrentUserEmail());
         return question;
     }
 
     public UploadQuestionResponse upload(MultipartFile file) {
         try {
             checkIfFileIsEmpty(file);
-            Long jobId = buildAndCreateJob(file.getOriginalFilename());
+            Long jobId = jobService.create(file.getOriginalFilename());
             fileService.saveFile(file, jobId);
             return new UploadQuestionResponse(jobId);
         } catch (Exception error) {
             log.error("Error uploading file", error);
             throw error;
         }
-    }
-
-    private Long buildAndCreateJob(String originalFileName) {
-        Job job = new Job();
-        job.setStatus(JobStatus.NEW);
-        job.setOriginalFileName(originalFileName);
-        job.setCreatedBy(AuthUtil.getCurrentUserEmail());
-        return jobService.create(job);
     }
 
     private void checkIfFileIsEmpty(MultipartFile file) {
@@ -129,19 +122,22 @@ public class QuestionService extends BaseService {
         try {
             Question question = questionDao.find(id);
             if (question == null) throw new NotFoundException("Could not find question with question id " + id);
-            return question;
+            return questionOptionsService.fetchOptions(question);
         } catch (Exception error) {
             log.error("Error fetching question", error);
             throw error;
         }
     }
 
-    public void update(int id, Question update) {
+    public void update(int id, QuestionCreateRequest update) {
         try {
             Question existing = this.findById(id);
-            update.setId(existing.getId());
-            update.setLastUpdatedBy(getCurrentUserEmail());
-            questionDao.update(update);
+            validateQuestionOptions(update);
+            Question question = transformQuestion(update);
+            question.setId(existing.getId());
+            question.setLastUpdatedBy(AuthUtil.getCurrentUserEmail());
+            questionDao.update(question);
+            questionOptionsService.update(question);
         } catch (Exception error) {
             log.error("Error updating question", error);
             throw error;
@@ -152,13 +148,10 @@ public class QuestionService extends BaseService {
         try {
             Question existing = this.findById(id);
             questionDao.delete(existing.getId());
+            questionOptionsService.delete(existing.getId());
         } catch (Exception error) {
             log.error("Error deleting question", error);
             throw error;
         }
-    }
-
-    private String getCurrentUserEmail() {
-        return userService.findByCurrentUser().getEmail();
     }
 }

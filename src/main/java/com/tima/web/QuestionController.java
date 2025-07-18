@@ -87,7 +87,7 @@ public class QuestionController {
     }
 
     @PutMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public Response<Question> update(@PathVariable int id, @RequestBody @Validated Question updateRequest) {
+    public Response<Question> update(@PathVariable int id, @RequestBody @Validated QuestionCreateRequest updateRequest) {
         questionService.update(id, updateRequest);
         return new Response<>("Question updated successfully");
     }

@@ -8,14 +8,14 @@ import com.tima.enums.QuestionMode;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Set;
+import java.util.LinkedHashSet;
 
 @Getter
 @Setter
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class Question extends BaseObject {
     private String question;
-    private Set<String> options;
+    private LinkedHashSet<String> options;
     private String answer;
     private String subject;
     private String topic;

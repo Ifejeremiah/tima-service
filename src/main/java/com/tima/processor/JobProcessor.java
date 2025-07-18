@@ -6,6 +6,7 @@ import com.tima.enums.JobStatus;
 import com.tima.io.FileReader;
 import com.tima.model.Job;
 import com.tima.model.Question;
+import com.tima.service.QuestionOptionsService;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
@@ -20,11 +21,13 @@ public class JobProcessor implements Runnable {
     JobDao jobDao;
     String location;
     QuestionDao questionDao;
+    QuestionOptionsService questionOptionsService;
 
-    public JobProcessor(Job job, JobDao jobDao, QuestionDao questionDao, String location) {
+    public JobProcessor(Job job, JobDao jobDao, QuestionDao questionDao, QuestionOptionsService questionOptionsService, String location) {
         this.job = job;
         this.jobDao = jobDao;
         this.questionDao = questionDao;
+        this.questionOptionsService = questionOptionsService;
         this.location = location;
     }
 
@@ -40,7 +43,9 @@ public class JobProcessor implements Runnable {
                     statusMessage.append(question.getStatusMessage());
                 } else {
                     question.setCreatedBy(job.getCreatedBy());
-                    questionDao.create(question);
+                    int questionId = (int) questionDao.create(question);
+                    question.setId(questionId);
+                    questionOptionsService.create(question);
                     jobDao.updateJobStatus(job.getId(), JobStatus.SUCCESSFUL, question.getStatusMessage());
                 }
             }

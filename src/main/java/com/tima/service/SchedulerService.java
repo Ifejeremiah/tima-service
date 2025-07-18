@@ -24,14 +24,16 @@ public class SchedulerService {
     TaskExecutor executor;
     FileService fileService;
     QuestionDao questionDao;
+    QuestionOptionsService questionOptionsService;
     @Value("${FILE.DIRECTORY}")
     private String location;
 
-    public SchedulerService(JobDao jobDao, @Qualifier("executor") TaskExecutor executor, FileService fileService, QuestionDao questionDao) {
+    public SchedulerService(JobDao jobDao, @Qualifier("executor") TaskExecutor executor, FileService fileService, QuestionDao questionDao, QuestionOptionsService questionOptionsService) {
         this.jobDao = jobDao;
         this.executor = executor;
         this.fileService = fileService;
         this.questionDao = questionDao;
+        this.questionOptionsService = questionOptionsService;
     }
 
     @Scheduled(fixedDelayString = "${SCHEDULER.DELAY}")
@@ -39,7 +41,7 @@ public class SchedulerService {
         List<Job> jobs = jobDao.findJobsForProcessing(fetchCount, amnestyTime);
         log.info("{} Jobs picked for processing", jobs.size());
         for (Job job : jobs) {
-            JobProcessor processor = new JobProcessor(job, jobDao, questionDao, location);
+            JobProcessor processor = new JobProcessor(job, jobDao, questionDao, questionOptionsService, location);
             executor.execute(processor);
         }
     }
