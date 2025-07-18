@@ -11,6 +11,7 @@ import com.tima.exception.NotFoundException;
 import com.tima.model.Page;
 import com.tima.model.Question;
 import com.tima.util.AuthUtil;
+import com.tima.util.DateUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -81,9 +82,10 @@ public class QuestionService extends BaseService {
         }
     }
 
-    public Page<Question> findAll(int page, int size, String searchQuery) {
+    public Page<Question> findAll(int page, int size, String searchQuery, String subject, String mode, String difficultyLevel, String examType, String startDate, String endDate) {
         try {
-            return questionDao.findAll(page, size, searchQuery);
+            DateUtil.validateStartAndEndDates(startDate, endDate);
+            return questionDao.findAll(page, size, searchQuery, subject, mode, difficultyLevel, examType, startDate, endDate);
         } catch (Exception error) {
             log.error("Error fetching all questions", error);
             throw error;
@@ -147,8 +149,8 @@ public class QuestionService extends BaseService {
     public void delete(int id) {
         try {
             Question existing = this.findById(id);
-            questionDao.delete(existing.getId());
             questionOptionsService.delete(existing.getId());
+            questionDao.delete(existing.getId());
         } catch (Exception error) {
             log.error("Error deleting question", error);
             throw error;

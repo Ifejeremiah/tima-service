@@ -42,9 +42,15 @@ public class QuestionController {
     public Response<Page<Question>> findAll(
             @RequestParam(name = "page_num", defaultValue = "0") int page,
             @RequestParam(name = "page_size", defaultValue = "10") int size,
-            @RequestParam(name = "search_query", required = false) String searchQuery) {
+            @RequestParam(name = "search_query", required = false) String searchQuery,
+            @RequestParam(name = "subject", required = false) String subject,
+            @RequestParam(name = "mode", required = false) String mode,
+            @RequestParam(name = "difficultyLevel", required = false) String difficultyLevel,
+            @RequestParam(name = "examType", required = false) String examType,
+            @RequestParam(name = "start_date", required = false) String startDate,
+            @RequestParam(name = "end_date", required = false) String endDate) {
         Response<Page<Question>> response = new Response<>();
-        response.setData(questionService.findAll(page, size, searchQuery));
+        response.setData(questionService.findAll(page, size, searchQuery, subject, mode, difficultyLevel, examType, startDate, endDate));
         response.setMessage("Questions fetched successfully");
         return response;
     }

@@ -211,22 +211,26 @@ GO
 
 ALTER PROCEDURE [psp_update_question](
     @id INT,
+    @question VARCHAR(MAX),
+    @answer VARCHAR(225),
     @subject VARCHAR(100),
     @topic VARCHAR(100),
     @difficulty_level VARCHAR(7),
-    @question VARCHAR(MAX),
-    @answer VARCHAR(225),
+    @mode VARCHAR(20),
+    @exam_type VARCHAR(20),
     @last_updated_by VARCHAR(70))
 AS
     SET NOCOUNT ON
     BEGIN TRANSACTION
 
 UPDATE tbl_questions
-SET subject          = @subject,
+SET question         = @question,
+    answer           = @answer,
+    subject          = @subject,
     topic            = @topic,
     difficulty_level = @difficulty_level,
-    question         = @question,
-    answer           = @answer,
+    mode             = @mode,
+    exam_type        = @exam_type,
     last_updated_by  = @last_updated_by,
     last_updated_on  = GETDATE()
 WHERE id = @id
