@@ -7,3 +7,4 @@ src/main/resources/application-default.properties
 /wrapper/*.log
 /wrapper/*.jar
 *.zip
+/dir/

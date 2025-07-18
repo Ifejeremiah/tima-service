@@ -26,6 +26,7 @@ public class BaseDao<T> {
     protected SimpleJdbcCall update;
     protected SimpleJdbcCall delete;
     protected SimpleJdbcCall findById;
+    protected SimpleJdbcCall findAll;
     protected SimpleJdbcCall findAllPaginated;
 
     public long create(T model) throws DataAccessException {
@@ -58,7 +59,8 @@ public class BaseDao<T> {
     }
 
     public List<T> findAll() throws DataAccessException {
-        return this.findAll(0, 0).getContent();
+        Map<String, Object> m = this.findAll.execute();
+        return (List<T>) m.get(MULTIPLE_RESULT);
     }
 
     public Page<T> findAll(Integer pageNum, Integer pageSize) throws DataAccessException {

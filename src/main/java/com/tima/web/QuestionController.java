@@ -2,6 +2,7 @@ package com.tima.web;
 
 import com.tima.dto.QuestionCreateRequest;
 import com.tima.dto.Response;
+import com.tima.dto.UploadQuestionResponse;
 import com.tima.model.Page;
 import com.tima.model.Question;
 import com.tima.service.QuestionService;
@@ -9,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -28,13 +30,27 @@ public class QuestionController {
         return new Response<>("Question created successfully");
     }
 
+    @PostMapping(path = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public Response<UploadQuestionResponse> upload(@RequestParam MultipartFile file) {
+        Response<UploadQuestionResponse> response = new Response<>();
+        response.setData(questionService.upload(file));
+        response.setMessage("Bulk questions uploaded successfully");
+        return response;
+    }
+
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public Response<Page<Question>> findAll(
             @RequestParam(name = "page_num", defaultValue = "0") int page,
             @RequestParam(name = "page_size", defaultValue = "10") int size,
-            @RequestParam(name = "search_query", required = false) String searchQuery) {
+            @RequestParam(name = "search_query", required = false) String searchQuery,
+            @RequestParam(name = "subject", required = false) String subject,
+            @RequestParam(name = "mode", required = false) String mode,
+            @RequestParam(name = "difficultyLevel", required = false) String difficultyLevel,
+            @RequestParam(name = "examType", required = false) String examType,
+            @RequestParam(name = "start_date", required = false) String startDate,
+            @RequestParam(name = "end_date", required = false) String endDate) {
         Response<Page<Question>> response = new Response<>();
-        response.setData(questionService.findAll(page, size, searchQuery));
+        response.setData(questionService.findAll(page, size, searchQuery, subject, mode, difficultyLevel, examType, startDate, endDate));
         response.setMessage("Questions fetched successfully");
         return response;
     }
@@ -77,7 +93,7 @@ public class QuestionController {
     }
 
     @PutMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public Response<Question> update(@PathVariable int id, @RequestBody @Validated Question updateRequest) {
+    public Response<Question> update(@PathVariable int id, @RequestBody @Validated QuestionCreateRequest updateRequest) {
         questionService.update(id, updateRequest);
         return new Response<>("Question updated successfully");
     }

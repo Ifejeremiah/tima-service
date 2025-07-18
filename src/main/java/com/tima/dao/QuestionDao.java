@@ -1,5 +1,6 @@
 package com.tima.dao;
 
+import com.tima.model.Page;
 import com.tima.model.Question;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -9,6 +10,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ObjectUtils;
 
 import javax.sql.DataSource;
 import java.util.List;
@@ -51,6 +53,26 @@ public class QuestionDao extends BaseDao<Question> {
         delete = new SimpleJdbcCall(jdbcTemplate)
                 .withProcedureName("psp_delete_question")
                 .withReturnValue();
+    }
+
+    public Page<Question> findAll(Integer pageNum, Integer pageSize, String searchQuery, String subject, String mode, String difficultyLevel, String examType, String startDate, String endDate) throws DataAccessException {
+
+        SqlParameterSource in = (new MapSqlParameterSource())
+                .addValue(PAGE, pageNum <= 0 ? 1 : pageNum)
+                .addValue(PAGE_SIZE, pageSize <= 0 ? 10 : pageSize)
+                .addValue(SEARCH_QUERY, searchQuery == null ? "" : searchQuery)
+                .addValue("subject", subject == null ? "" : subject)
+                .addValue("mode", mode == null ? "" : mode)
+                .addValue("difficulty_level", difficultyLevel == null ? "" : difficultyLevel)
+                .addValue("exam_type", examType == null ? "" : examType)
+                .addValue("start_date", ObjectUtils.isEmpty(startDate) ? null : startDate)
+                .addValue("end_date", ObjectUtils.isEmpty(endDate) ? null : endDate);
+
+        Map<String, Object> m = this.findAllPaginated.execute(in);
+        List<Question> content = (List<Question>) m.get(MULTIPLE_RESULT);
+        List<Long> counts = (List<Long>) m.get(RESULT_COUNT);
+        Long count = counts.isEmpty() ? 0 : (Long) counts.get(0);
+        return new Page<>(count, content);
     }
 
     public List<Question> findAllForQuiz(Integer pageSize, String subject, String topic, String difficultyLevel) throws DataAccessException {
