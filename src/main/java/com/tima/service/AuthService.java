@@ -6,11 +6,14 @@ import com.tima.exception.BadRequestException;
 import com.tima.exception.DuplicateEntityException;
 import com.tima.model.Mail;
 import com.tima.model.Otp;
+import com.tima.model.Token;
 import com.tima.model.User;
 import com.tima.util.Encoder;
 import com.tima.util.JwtUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.Date;
 
 @Slf4j
 @Service
@@ -20,13 +23,15 @@ public class AuthService {
     OTPService otpService;
     Encoder encoder;
     JwtUtil jwtUtil;
+    TokenService tokenService;
 
-    public AuthService(UserService userService, MailService mailService, OTPService otpService, Encoder encoder, JwtUtil jwtUtil) {
+    public AuthService(UserService userService, MailService mailService, OTPService otpService, Encoder encoder, JwtUtil jwtUtil, TokenService tokenService) {
         this.userService = userService;
         this.mailService = mailService;
         this.otpService = otpService;
         this.encoder = encoder;
         this.jwtUtil = jwtUtil;
+        this.tokenService = tokenService;
     }
 
     public UserCreateResponse register(User user) {
@@ -80,7 +85,17 @@ public class AuthService {
 
     private UserLoginResponse buildLoginResponse(User user) {
         UserLoginResponse response = new UserLoginResponse(user);
-        response.setAccessToken(jwtUtil.generateToken(user.getEmail()));
+        response.setAccessToken(jwtUtil.generateAccessToken(user.getEmail()));
+        String refreshToken = jwtUtil.generateRefreshToken();
+        tokenService.create(user.getEmail(), refreshToken);
+        response.setRefreshToken(refreshToken);
+        return response;
+    }
+
+    private UserLoginResponse buildLoginResponse(User user, String refreshToken) {
+        UserLoginResponse response = new UserLoginResponse(user);
+        response.setAccessToken(jwtUtil.generateAccessToken(user.getEmail()));
+        response.setRefreshToken(refreshToken);
         return response;
     }
 
@@ -116,6 +131,32 @@ public class AuthService {
         } catch (Exception error) {
             log.error("Error validating OTP", error);
             throw error;
+        }
+    }
+
+    public UserLoginResponse refreshToken(RefreshTokenRequest refreshTokenRequest) {
+        try {
+            User user = userService.findByEmail(refreshTokenRequest.getEmail());
+            checkIfUserExists(user);
+            checkUserIsNotDeleted(user);
+            Token token = tokenService.findByEmailAndToken(user.getEmail(), refreshTokenRequest.getRefreshToken());
+            checkIfTokenIsExpired(token);
+            userService.updateLastLogin(user.getId());
+            return buildLoginResponse(user, refreshTokenRequest.getRefreshToken());
+        } catch (Exception error) {
+            log.error("Error refreshing token", error);
+            throw error;
+        }
+    }
+
+    private void checkIfUserExists(User user) {
+        if (user == null)
+            throw new BadRequestException("Email does not exist");
+    }
+
+    private void checkIfTokenIsExpired(Token token) {
+        if (token.getExpiresAt().before(new Date())) {
+            throw new BadRequestException("Refresh token is expired. Login to regenerate");
         }
     }
 }
