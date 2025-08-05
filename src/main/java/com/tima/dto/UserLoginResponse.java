@@ -11,7 +11,7 @@ import org.springframework.beans.BeanUtils;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class UserLoginResponse {
     private String accessToken;
-    private String id;
+    private String refreshToken;
     private String email;
 
     public UserLoginResponse(User user) {

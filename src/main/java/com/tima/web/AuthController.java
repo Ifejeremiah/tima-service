@@ -47,4 +47,12 @@ public class AuthController {
         response.setMessage("OTP validated successfully");
         return response;
     }
+
+    @PostMapping(path = "/refresh-token", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public Response<UserLoginResponse> refreshToken(@Validated @RequestBody RefreshTokenRequest refreshTokenRequest) {
+        Response<UserLoginResponse> response = new Response<>();
+        response.setData(authService.refreshToken(refreshTokenRequest));
+        response.setMessage("Refreshed token successfully");
+        return response;
+    }
 }
