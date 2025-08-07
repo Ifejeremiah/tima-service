@@ -19,7 +19,7 @@ public class Quiz extends BaseObject {
     @NotBlank(message = "Topic is required")
     @Length(min = 3, max = 100)
     private String topic;
-    private QuestionDifficultyLevel questionDifficultyLevel;
+    private QuestionDifficultyLevel difficultyLevel;
     private Integer score;
     private Integer numberOfQuestions;
 }

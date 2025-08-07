@@ -2,6 +2,8 @@ package com.tima.web;
 
 import com.tima.dto.QuizResponse;
 import com.tima.dto.Response;
+import com.tima.dto.StartQuizRequest;
+import com.tima.dto.SubmitQuizRequest;
 import com.tima.model.Page;
 import com.tima.model.Quiz;
 import com.tima.service.QuizService;
@@ -9,8 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping(value = "/api/v1/quizzes")
@@ -20,15 +20,6 @@ public class QuizController {
 
     public QuizController(QuizService quizService) {
         this.quizService = quizService;
-    }
-
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseStatus(value = HttpStatus.CREATED)
-    public Response<Quiz> create(@Validated @RequestBody Quiz quiz) {
-        Response<Quiz> response = new Response<>();
-        response.setData(quizService.create(quiz));
-        response.setMessage("Quiz created successfully");
-        return response;
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
@@ -59,10 +50,19 @@ public class QuizController {
         return response;
     }
 
-    @PostMapping(path = "/{id}/submit", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = "/start", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(value = HttpStatus.CREATED)
-    public Response<Quiz> submit(@PathVariable int id, @RequestBody List<QuizResponse> responses) {
-        quizService.submit(id, responses);
+    public Response<QuizResponse> start(@Validated @RequestBody StartQuizRequest quizRequest) {
+        Response<QuizResponse> response = new Response<>();
+        response.setData(quizService.start(quizRequest));
+        response.setMessage("Quiz created successfully");
+        return response;
+    }
+
+    @PostMapping(path = "/submit/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(value = HttpStatus.CREATED)
+    public Response<Quiz> submit(@PathVariable int id, @RequestBody SubmitQuizRequest submitRequest) {
+        quizService.submit(id, submitRequest);
         return new Response<>("Quiz submitted successfully");
     }
 }
