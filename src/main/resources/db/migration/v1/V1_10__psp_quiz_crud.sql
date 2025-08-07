@@ -1,30 +1,45 @@
--- CREATE QUIZ --
+-- START QUIZ --
 
 IF NOT EXISTS(SELECT *
               FROM sys.objects
-              WHERE object_id = OBJECT_ID(N'psp_create_quiz')
+              WHERE object_id = OBJECT_ID(N'psp_start_quiz')
                 AND type IN (N'P', N'PC'))
-    EXEC ('CREATE PROCEDURE psp_create_quiz AS BEGIN SET NOCOUNT ON; END')
+    EXEC ('CREATE PROCEDURE psp_start_quiz AS BEGIN SET NOCOUNT ON; END')
 GO
 
-ALTER PROCEDURE [psp_create_quiz](
-    @idx BIGINT = 0 OUTPUT,
+ALTER PROCEDURE [psp_start_quiz](
+    @quizId INT = 0 OUTPUT,
     @student_id INT,
     @subject VARCHAR(100),
     @topic VARCHAR(100),
-    @difficulty_level VARCHAR(7))
+    @difficulty_level VARCHAR(7),
+    @number_of_questions INT)
 AS
     SET NOCOUNT ON
     BEGIN TRANSACTION
 
-INSERT INTO tbl_quiz(student_id, subject, topic, difficulty_level, created_on)
-VALUES (@student_id, @subject, @topic, @difficulty_level, GETDATE())
+DECLARE @count INT;
+SELECT @count = COUNT(*)
+FROM tbl_questions
+WHERE subject = @subject
+  AND topic = @topic
+  AND difficulty_level = @difficulty_level
+
+SELECT TOP (@number_of_questions) *
+FROM tbl_questions
+WHERE subject = @subject
+  AND topic = @topic
+  AND difficulty_level = @difficulty_level
+ORDER BY NEWID()
+
+INSERT INTO tbl_quiz(student_id, subject, topic, difficulty_level, number_of_questions, created_on)
+VALUES (@student_id, @subject, @topic, @difficulty_level, @count, GETDATE())
+SELECT @quizId = @@IDENTITY
     IF @@ERROR <> 0
         ROLLBACK TRANSACTION;
     ELSE
         COMMIT TRANSACTION;
 
-SELECT @idx = @@IDENTITY
 GO
 
 -- FIND ALL QUIZZES --
@@ -115,26 +130,24 @@ WHERE id = @id
     RETURN @@Error
 GO
 
--- UPDATE QUIZ --
+-- SUBMIT QUIZ --
 
 IF NOT EXISTS(SELECT *
               FROM sys.objects
-              WHERE object_id = OBJECT_ID(N'psp_update_quiz')
+              WHERE object_id = OBJECT_ID(N'psp_submit_quiz')
                 AND type IN (N'P', N'PC'))
-    EXEC ('CREATE PROCEDURE psp_update_quiz AS BEGIN SET NOCOUNT ON; END')
+    EXEC ('CREATE PROCEDURE psp_submit_quiz AS BEGIN SET NOCOUNT ON; END')
 GO
 
-ALTER PROCEDURE [psp_update_quiz](
+ALTER PROCEDURE [psp_submit_quiz](
     @id INT,
-    @score INT,
-    @number_of_questions INT)
+    @score INT)
 AS
     SET NOCOUNT ON
     BEGIN TRANSACTION
 
 UPDATE tbl_quiz
 SET score               = @score,
-    number_of_questions = @number_of_questions,
     last_updated_on     = GETDATE()
 WHERE id = @id
     IF @@ERROR <> 0

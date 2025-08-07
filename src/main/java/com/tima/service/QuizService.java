@@ -2,33 +2,32 @@ package com.tima.service;
 
 import com.tima.dao.QuizDao;
 import com.tima.dto.QuizResponse;
+import com.tima.dto.QuizResultSet;
+import com.tima.dto.StartQuizRequest;
+import com.tima.dto.SubmitQuizRequest;
+import com.tima.enums.QuestionDifficultyLevel;
 import com.tima.exception.BadRequestException;
 import com.tima.exception.NotFoundException;
 import com.tima.model.Page;
+import com.tima.model.Question;
 import com.tima.model.Quiz;
-import com.tima.processor.QuizMarker;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.core.task.TaskExecutor;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.LinkedHashSet;
 
 @Slf4j
 @Service
 public class QuizService {
     QuizDao quizDao;
     StudentService studentService;
-    QuestionService questionService;
-    QuestionQuizService questionQuizService;
-    TaskExecutor executor;
+    QuestionOptionsService questionOptionsService;
 
-    public QuizService(QuizDao quizDao, StudentService studentService, QuestionService questionService, QuestionQuizService questionQuizService, @Qualifier("executor") TaskExecutor executor) {
+    public QuizService(QuizDao quizDao, StudentService studentService, QuestionOptionsService questionOptionsService) {
         this.quizDao = quizDao;
         this.studentService = studentService;
-        this.questionService = questionService;
-        this.questionQuizService = questionQuizService;
-        this.executor = executor;
+        this.questionOptionsService = questionOptionsService;
     }
 
     public Quiz create(Quiz quiz) {
@@ -71,24 +70,30 @@ public class QuizService {
         }
     }
 
-    public void update(int id, Quiz update) {
+    public QuizResponse start(StartQuizRequest quizRequest) {
         try {
-            Quiz existing = this.findById(id);
-            update.setId(existing.getId());
-            quizDao.update(update);
+            Quiz quiz = new Quiz();
+            BeanUtils.copyProperties(quizRequest, quiz);
+            quiz.setDifficultyLevel(QuestionDifficultyLevel.valueOf(quizRequest.getDifficultyLevel()));
+            quiz.setStudentId(getCurrentStudentId());
+            QuizResultSet resultSet = quizDao.start(quiz);
+            for (Question question : resultSet.getQuestionList()) {
+                LinkedHashSet<String> optionSet = questionOptionsService.fetchOptions(question).getOptions();
+                question.setOptions(optionSet);
+            }
+            return new QuizResponse(resultSet.getQuizId(), getCurrentStudentId(), resultSet.getCount(), resultSet.getQuestionList());
         } catch (Exception error) {
-            log.error("Error updating quiz", error);
+            log.error("Error starting quiz", error);
             throw error;
         }
     }
 
-    public void submit(int id, List<QuizResponse> responses) {
+    public void submit(int id, SubmitQuizRequest submitRequest) {
         try {
-            if (responses.isEmpty()) throw new BadRequestException("Response list is empty");
+            getCurrentStudentId();
             Quiz quiz = this.findById(id);
             if (quiz.getScore() != null) throw new BadRequestException("Quiz has been submitted already");
-            QuizMarker marker = new QuizMarker(responses, this, questionService, questionQuizService, id);
-            executor.execute(marker);
+            quizDao.submit(quiz.getId(), submitRequest.getScore());
         } catch (Exception error) {
             log.error("Error submitting quiz", error);
             throw error;
