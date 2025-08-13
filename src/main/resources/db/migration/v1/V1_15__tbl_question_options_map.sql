@@ -1,8 +1,8 @@
 IF EXISTS (SELECT 1
            FROM sys.objects
-           WHERE object_id = object_id(N'tbl_question_option_map')
+           WHERE object_id = object_id(N'tbl_question_options_map')
              AND type IN (N'U'))
-    PRINT 'TABLE tbl_question_option_map ALREADY EXISTS... CREATE TABLE ABORTED'
+    PRINT 'TABLE tbl_question_options_map ALREADY EXISTS... CREATE TABLE ABORTED'
 ELSE
     CREATE TABLE tbl_question_options_map
     (
