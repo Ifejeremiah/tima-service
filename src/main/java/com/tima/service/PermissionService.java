@@ -57,7 +57,7 @@ public class PermissionService {
             permission.setId(existing.getId());
             permissionDao.update(permission);
         } catch (Exception error) {
-            log.error("Error updating question", error);
+            log.error("Error updating permission", error);
             throw error;
         }
     }
