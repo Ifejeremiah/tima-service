@@ -2,12 +2,15 @@ package com.tima.web;
 
 import com.tima.dto.Response;
 import com.tima.model.Page;
+import com.tima.model.Permission;
 import com.tima.model.Role;
 import com.tima.service.RoleService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping(value = "/api/v1/roles")
@@ -48,5 +51,25 @@ public class RoleController {
     public Response<Role> update(@PathVariable int id, @RequestBody @Validated Role updateRequest) {
         roleService.update(id, updateRequest);
         return new Response<>("Role updated successfully");
+    }
+
+    @PostMapping(value = "/{roleId}/permissions/{permissionId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Response<Role> assignPermissionToRole(@PathVariable Integer roleId, @PathVariable Integer permissionId) {
+        roleService.assignPermissionToRole(roleId, permissionId);
+        return new Response<>("Permission with ID " + permissionId + " is assigned to role with ID " + roleId + " successfully");
+    }
+
+    @DeleteMapping(value = "/{roleId}/permissions/{permissionId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Response<Role> removePermissionOnRole(@PathVariable Integer roleId, @PathVariable Integer permissionId) {
+        roleService.removePermissionOnRole(roleId, permissionId);
+        return new Response<>("Permission with ID " + permissionId + " is removed on role with ID " + roleId + " successfully");
+    }
+
+    @GetMapping(value = "/{roleId}/permissions", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Response<List<Permission>> findPermissionsOnRole(@PathVariable int roleId) {
+        Response<List<Permission>> response = new Response<>();
+        response.setData(roleService.findPermissionsOnRole(roleId));
+        response.setMessage("Permissions on roleId " + roleId + " fetched successfully");
+        return response;
     }
 }
