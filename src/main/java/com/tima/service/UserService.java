@@ -36,7 +36,7 @@ public class UserService extends BaseService {
         }
     }
 
-    private void checkUserExists(String email) {
+    public void checkUserExists(String email) {
         if (this.findByEmail(email) != null)
             throw new DuplicateEntityException("User with this email already exists");
     }
