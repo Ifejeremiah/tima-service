@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 public class User extends BaseObject {
     @Email
     @NotBlank(message = "Email is required")
-    @Length(min = 8, max = 40)
+    @Length(min = 8, max = 70)
     private String email;
     @NotBlank(message = "Password is required")
     @Length(min = 8, max = 20)

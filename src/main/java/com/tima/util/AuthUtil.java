@@ -9,7 +9,8 @@ public class AuthUtil {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (!(auth.getPrincipal() instanceof String)) {
             return (User) auth.getPrincipal();
-        } return null;
+        }
+        return null;
     }
 
     public static String getCurrentUserEmail() {

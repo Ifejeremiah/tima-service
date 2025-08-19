@@ -4,12 +4,12 @@ import com.tima.dto.*;
 import com.tima.enums.UserStatus;
 import com.tima.exception.BadRequestException;
 import com.tima.exception.DuplicateEntityException;
-import com.tima.model.Mail;
 import com.tima.model.Otp;
 import com.tima.model.Token;
 import com.tima.model.User;
 import com.tima.util.Encoder;
 import com.tima.util.JwtUtil;
+import com.tima.util.MailUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -39,7 +39,7 @@ public class AuthService {
             checkEmailExists(user.getEmail());
             user.setPassword(encoder.encodePassword(user.getPassword()));
             String otp = otpService.create(user.getEmail());
-            mailService.sendMail(user.getEmail(), buildOTPMail(otp));
+            mailService.sendMail(user.getEmail(), MailUtil.constructOTPMail(otp));
             return buildCreateResponse(user);
         } catch (Exception error) {
             log.error("Error registering user", error);
@@ -55,13 +55,6 @@ public class AuthService {
     private UserCreateResponse buildCreateResponse(User user) {
         long id = userService.create(user);
         return new UserCreateResponse(id, user.getEmail());
-    }
-
-    private Mail buildOTPMail(String otp) {
-        Mail mail = new Mail();
-        mail.setSubject("Verify your email address");
-        mail.setContext(String.format("Verification Code: <b>%s</b>. This code will expire 5 minutes after it was sent.", otp));
-        return mail;
     }
 
     public UserLoginResponse authenticate(UserLoginRequest loginRequest) {
@@ -113,7 +106,7 @@ public class AuthService {
         try {
             User user = userService.findByEmail(resetRequest.getEmail(), true);
             String otp = otpService.create(user.getEmail());
-            mailService.sendMail(user.getEmail(), buildOTPMail(otp));
+            mailService.sendMail(user.getEmail(), MailUtil.constructOTPMail(otp));
         } catch (Exception error) {
             log.error("Error resetting password", error);
             throw error;
