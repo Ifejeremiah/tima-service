@@ -2,6 +2,7 @@ package com.tima.service;
 
 import com.tima.dao.UserDao;
 import com.tima.dto.ChangePasswordRequest;
+import com.tima.dto.CurrentUserResponse;
 import com.tima.enums.UserStatus;
 import com.tima.exception.BadRequestException;
 import com.tima.exception.DuplicateEntityException;
@@ -19,11 +20,13 @@ public class UserService extends BaseService {
     UserDao userDao;
     Encoder encoder;
     MailService mailService;
+    RoleService roleService;
 
-    public UserService(UserDao userDao, Encoder encoder, MailService mailService) {
+    public UserService(UserDao userDao, Encoder encoder, MailService mailService, RoleService roleService) {
         this.userDao = userDao;
         this.encoder = encoder;
         this.mailService = mailService;
+        this.roleService = roleService;
     }
 
     public long create(User user) {
@@ -81,9 +84,13 @@ public class UserService extends BaseService {
         }
     }
 
-    public User findByCurrentUser() {
+    public CurrentUserResponse findByCurrentUser() {
         try {
-            return this.findById(fetchCurrentUserId());
+            CurrentUserResponse currentUser = new CurrentUserResponse();
+            currentUser.setUser(this.findById(fetchCurrentUserId()));
+            currentUser.setRole(roleService.findById(1));
+            currentUser.setPermissions(roleService.findPermissionsOnRole(1));
+            return currentUser;
         } catch (Exception error) {
             log.error("Error fetching current user", error);
             throw error;

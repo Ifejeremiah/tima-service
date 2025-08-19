@@ -1,6 +1,7 @@
 package com.tima.web;
 
 import com.tima.dto.ChangePasswordRequest;
+import com.tima.dto.CurrentUserResponse;
 import com.tima.dto.Response;
 import com.tima.model.Page;
 import com.tima.model.User;
@@ -39,8 +40,8 @@ public class UserController {
     }
 
     @GetMapping(path = "/me", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Response<User> findByCurrentUser() {
-        Response<User> response = new Response<>();
+    public Response<CurrentUserResponse> findByCurrentUser() {
+        Response<CurrentUserResponse> response = new Response<>();
         response.setData(userService.findByCurrentUser());
         response.setMessage("User fetched by current user successfully");
         return response;
