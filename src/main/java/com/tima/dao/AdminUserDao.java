@@ -1,16 +1,28 @@
 package com.tima.dao;
 
 import com.tima.model.AdminUser;
+import com.tima.model.Permission;
+import com.tima.model.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
+import java.util.List;
+import java.util.Map;
 
 @Component
 public class AdminUserDao extends BaseDao<AdminUser> {
+    SimpleJdbcCall createUserRole,
+            deleteUserRole,
+            findUserRole,
+            findRolesOnUser,
+            findPermissionsOnUser;
+
     @Autowired
     public void setDataSource(DataSource dataSource) {
 
@@ -30,5 +42,49 @@ public class AdminUserDao extends BaseDao<AdminUser> {
         update = new SimpleJdbcCall(jdbcTemplate)
                 .withProcedureName("psp_update_admin_user")
                 .withReturnValue();
+        createUserRole = new SimpleJdbcCall(jdbcTemplate)
+                .withProcedureName("psp_create_user_role")
+                .withReturnValue();
+        deleteUserRole = new SimpleJdbcCall(jdbcTemplate)
+                .withProcedureName("psp_delete_user_role")
+                .withReturnValue();
+        findUserRole = new SimpleJdbcCall(jdbcTemplate)
+                .withProcedureName("psp_fetch_user_role")
+                .returningResultSet(SINGLE_RESULT, BeanPropertyRowMapper.newInstance(Role.class));
+        findRolesOnUser = new SimpleJdbcCall(jdbcTemplate)
+                .withProcedureName("psp_fetch_roles_on_user")
+                .returningResultSet(MULTIPLE_RESULT, BeanPropertyRowMapper.newInstance(Role.class));
+        findPermissionsOnUser = new SimpleJdbcCall(jdbcTemplate)
+                .withProcedureName("psp_fetch_permissions_on_user")
+                .returningResultSet(MULTIPLE_RESULT, BeanPropertyRowMapper.newInstance(Permission.class));
+    }
+
+    public void createUserRole(int userId, int roleId) {
+        SqlParameterSource in = (new MapSqlParameterSource()).addValue("user_id", userId).addValue("role_id", roleId);
+        this.createUserRole.execute(in);
+    }
+
+    public void deleteUserRole(int userId, int roleId) {
+        SqlParameterSource in = (new MapSqlParameterSource()).addValue("user_id", userId).addValue("role_id", roleId);
+        this.deleteUserRole.execute(in);
+    }
+
+    public Role findUserRole(int userId, int roleId) {
+        SqlParameterSource in = (new MapSqlParameterSource()).addValue("user_id", userId).addValue("role_id", roleId);
+        Map<String, Object> m = this.findUserRole.execute(in);
+        List<Role> result = (List<Role>) m.get(SINGLE_RESULT);
+        return !result.isEmpty() ? result.get(0) : null;
+    }
+
+    public List<Role> findRolesOnUser(int userId) {
+        SqlParameterSource in = (new MapSqlParameterSource()).addValue("user_id", userId);
+        Map<String, Object> m = this.findRolesOnUser.execute(in);
+        return (List<Role>) m.get(MULTIPLE_RESULT);
+    }
+
+    public List<Permission> findPermissionsOnUser(int userId) {
+        SqlParameterSource in = (new MapSqlParameterSource()).addValue("user_id", userId);
+        Map<String, Object> m = this.findPermissionsOnUser.execute(in);
+        return (List<Permission>) m.get(MULTIPLE_RESULT);
     }
 }

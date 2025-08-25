@@ -12,6 +12,6 @@ import java.util.List;
 @Setter
 public class CurrentUserResponse {
     private User user;
-    private Role role;
+    private List<Role> roles;
     private List<Permission> permissions;
 }
