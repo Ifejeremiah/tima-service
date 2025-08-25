@@ -2,15 +2,19 @@ package com.tima.service;
 
 import com.tima.dao.AdminUserDao;
 import com.tima.dto.AdminUserUpdateRequest;
+import com.tima.exception.DuplicateEntityException;
 import com.tima.exception.NotFoundException;
 import com.tima.model.AdminUser;
 import com.tima.model.Mail;
 import com.tima.model.Page;
+import com.tima.model.Role;
 import com.tima.util.AuthUtil;
 import com.tima.util.MailUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Slf4j
 @Service
@@ -19,12 +23,14 @@ public class AdminUserService {
     UserService userService;
     MailService mailService;
     OTPService otpService;
+    RoleService roleService;
 
-    public AdminUserService(AdminUserDao adminUserDao, UserService userService, MailService mailService, OTPService otpService) {
+    public AdminUserService(AdminUserDao adminUserDao, UserService userService, MailService mailService, OTPService otpService, RoleService roleService) {
         this.adminUserDao = adminUserDao;
         this.userService = userService;
         this.mailService = mailService;
         this.otpService = otpService;
+        this.roleService = roleService;
     }
 
     public long create(AdminUser adminUser) {
@@ -78,6 +84,44 @@ public class AdminUserService {
             adminUserDao.update(adminUser);
         } catch (Exception error) {
             log.error("Error updating admin user", error);
+            throw error;
+        }
+    }
+
+    public void assignRoleToUser(int userId, int roleId) {
+        try {
+            AdminUser adminUser = findById(userId);
+            Role role = roleService.findById(roleId);
+            Role existing = adminUserDao.findUserRole(adminUser.getId(), role.getId());
+            if (existing != null)
+                throw new DuplicateEntityException("Role with ID " + roleId + " is already assigned to user with ID " + userId);
+            adminUserDao.createUserRole(adminUser.getId(), role.getId());
+        } catch (Exception error) {
+            log.error("Error assigning role to user", error);
+            throw error;
+        }
+    }
+
+    public void removeRoleOnUser(int userId, int roleId) {
+        try {
+            AdminUser adminUser = findById(userId);
+            Role role = roleService.findById(roleId);
+            Role existing = adminUserDao.findUserRole(adminUser.getId(), role.getId());
+            if (existing == null)
+                throw new NotFoundException("Role with ID " + roleId + " is NOT assigned to user with ID " + userId);
+            adminUserDao.deleteUserRole(adminUser.getId(), role.getId());
+        } catch (Exception error) {
+            log.error("Error removing role on user", error);
+            throw error;
+        }
+    }
+
+    public List<Role> findRolesOnUser(int userId) {
+        try {
+            AdminUser adminUser = findById(userId);
+            return adminUserDao.findRolesOnUser(adminUser.getId());
+        } catch (Exception error) {
+            log.error("Error fetching roles on user", error);
             throw error;
         }
     }

@@ -1,7 +1,9 @@
 package com.tima.service;
 
+import com.tima.dao.AdminUserDao;
 import com.tima.dao.UserDao;
 import com.tima.dto.ChangePasswordRequest;
+import com.tima.dto.CurrentUserResponse;
 import com.tima.enums.UserStatus;
 import com.tima.exception.BadRequestException;
 import com.tima.exception.DuplicateEntityException;
@@ -19,11 +21,15 @@ public class UserService extends BaseService {
     UserDao userDao;
     Encoder encoder;
     MailService mailService;
+    RoleService roleService;
+    AdminUserDao adminUserDao;
 
-    public UserService(UserDao userDao, Encoder encoder, MailService mailService) {
+    public UserService(UserDao userDao, Encoder encoder, MailService mailService, RoleService roleService, AdminUserDao adminUserDao) {
         this.userDao = userDao;
         this.encoder = encoder;
         this.mailService = mailService;
+        this.roleService = roleService;
+        this.adminUserDao = adminUserDao;
     }
 
     public long create(User user) {
@@ -81,9 +87,13 @@ public class UserService extends BaseService {
         }
     }
 
-    public User findByCurrentUser() {
+    public CurrentUserResponse findByCurrentUser() {
         try {
-            return this.findById(fetchCurrentUserId());
+            CurrentUserResponse currentUser = new CurrentUserResponse();
+            currentUser.setUser(this.findById(fetchCurrentUserId()));
+            currentUser.setRoles(adminUserDao.findRolesOnUser(fetchCurrentUserId()));
+            currentUser.setPermissions(adminUserDao.findPermissionsOnUser(fetchCurrentUserId()));
+            return currentUser;
         } catch (Exception error) {
             log.error("Error fetching current user", error);
             throw error;
