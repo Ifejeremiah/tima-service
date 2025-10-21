@@ -22,7 +22,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(HttpSecurity http) throws Exception {
         http.csrf().disable();
-        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().cors();
         http.authorizeRequests().antMatchers("/actuator/**", "/api/v1/auth/**").permitAll();
         http.authorizeRequests().antMatchers("/api/v1/**").authenticated();
         http.exceptionHandling().authenticationEntryPoint((request, response, authException) -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized"));
