@@ -67,6 +67,8 @@ public class AdminUserService {
         try {
             AdminUser adminUser = adminUserDao.find(id);
             if (adminUser == null) throw new NotFoundException("Could not find admin user with id " + id);
+            adminUser.setRoles(adminUserDao.findRolesOnUser(adminUser.getId()));
+            adminUser.setPermissions(adminUserDao.findPermissionsOnUser(adminUser.getId()));
             return adminUser;
         } catch (Exception error) {
             log.error("Error fetching admin user", error);

@@ -7,6 +7,7 @@ import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import java.util.List;
 
 @Getter
 @Setter
@@ -40,4 +41,6 @@ public class AdminUser extends BaseObject {
     @NotBlank(message = "Country is required")
     @Length(max = 20)
     private String country;
+    private List<Role> roles;
+    private List<Permission> permissions;
 }

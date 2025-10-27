@@ -8,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.task.TaskExecutor;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -36,7 +35,7 @@ public class SchedulerService {
         this.questionOptionsService = questionOptionsService;
     }
 
-    @Scheduled(fixedDelayString = "${SCHEDULER.DELAY}")
+//    @Scheduled(fixedDelayString = "${SCHEDULER.DELAY}")
     public void processJobs() {
         List<Job> jobs = jobDao.findJobsForProcessing(fetchCount, amnestyTime);
         log.info("{} Jobs picked for processing", jobs.size());
