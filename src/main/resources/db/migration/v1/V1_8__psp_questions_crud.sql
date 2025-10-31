@@ -15,7 +15,9 @@ ALTER PROCEDURE [psp_create_question](
     @topic VARCHAR(100),
     @difficulty_level VARCHAR(7),
     @mode VARCHAR(20),
+    @status VARCHAR(10),
     @exam_type VARCHAR(20),
+    @exam_year VARCHAR(5),
     @created_by VARCHAR(70))
 AS
     SET NOCOUNT ON
@@ -27,7 +29,9 @@ INSERT INTO tbl_questions(question,
                           topic,
                           difficulty_level,
                           mode,
+                          status,
                           exam_type,
+                          exam_year,
                           created_by,
                           created_on)
 VALUES (@question,
@@ -36,7 +40,9 @@ VALUES (@question,
         @topic,
         @difficulty_level,
         @mode,
+        @status,
         @exam_type,
+        @exam_year,
         @created_by,
         GETDATE())
     IF @@ERROR <> 0
@@ -217,7 +223,9 @@ ALTER PROCEDURE [psp_update_question](
     @topic VARCHAR(100),
     @difficulty_level VARCHAR(7),
     @mode VARCHAR(20),
+    @status VARCHAR(10),
     @exam_type VARCHAR(20),
+    @exam_year VARCHAR(5),
     @last_updated_by VARCHAR(70))
 AS
     SET NOCOUNT ON
@@ -230,7 +238,9 @@ SET question         = @question,
     topic            = @topic,
     difficulty_level = @difficulty_level,
     mode             = @mode,
+    status           = @status,
     exam_type        = @exam_type,
+    exam_year        = @exam_year,
     last_updated_by  = @last_updated_by,
     last_updated_on  = GETDATE()
 WHERE id = @id

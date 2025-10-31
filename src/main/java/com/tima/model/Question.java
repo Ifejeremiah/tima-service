@@ -1,10 +1,7 @@
 package com.tima.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.tima.enums.ExamType;
-import com.tima.enums.JobStatus;
-import com.tima.enums.QuestionDifficultyLevel;
-import com.tima.enums.QuestionMode;
+import com.tima.enums.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,7 +18,9 @@ public class Question extends BaseObject {
     private String topic;
     private QuestionDifficultyLevel difficultyLevel;
     private QuestionMode mode;
+    private QuestionStatus status;
     private ExamType examType;
-    private JobStatus status;
+    private String examYear;
+    private JobStatus jobStatus;
     private String statusMessage;
 }

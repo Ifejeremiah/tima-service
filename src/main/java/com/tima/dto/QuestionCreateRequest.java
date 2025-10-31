@@ -5,6 +5,7 @@ import lombok.Setter;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.util.LinkedHashSet;
 
@@ -30,7 +31,13 @@ public class QuestionCreateRequest {
     @NotBlank(message = "Mode is required")
     @Pattern(regexp = "^(PRACTICE|EXAM)$", message = "Only PRACTICE or EXAM values are allowed")
     private String mode;
-    @NotBlank(message = "Exam type is required")
-    @Pattern(regexp = "^(WAEC|JAMB)$", message = "Only WAEC or JAMB values are allowed")
+    @NotBlank(message = "Status is required")
+    @Pattern(regexp = "^(ACTIVE|DRAFT)$", message = "Only ACTIVE or DRAFT values are allowed")
+    private String status;
+    @NotNull(message = "Exam type is required")
+    @Length(max = 20)
     private String examType;
+    @NotNull(message = "Exam year is required")
+    @Length(max = 5)
+    private String examYear;
 }

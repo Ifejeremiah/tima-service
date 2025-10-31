@@ -50,7 +50,7 @@ public final class FileReader {
                 && !StringUtils.isEmpty(fields[7].trim());
 
         if (!isValid) {
-            question.setStatus(JobStatus.FAILED);
+            question.setJobStatus(JobStatus.FAILED);
             question.setStatusMessage("Failed to parse record at line " + lineNumber + ": One or more data not provided. Please correct.");
         }
         return isValid;
@@ -74,7 +74,7 @@ public final class FileReader {
         }
 
         if (!isValid) {
-            question.setStatus(JobStatus.FAILED);
+            question.setJobStatus(JobStatus.FAILED);
             question.setStatusMessage(message.toString());
         }
 
@@ -90,7 +90,7 @@ public final class FileReader {
         question.setDifficultyLevel(QuestionDifficultyLevel.valueOf(fields[5].trim()));
         question.setMode(QuestionMode.valueOf(fields[6].trim()));
         question.setExamType(ExamType.valueOf(fields[7].trim()));
-        question.setStatus(JobStatus.SUCCESSFUL);
+        question.setJobStatus(JobStatus.SUCCESSFUL);
     }
 
     private LinkedHashSet<String> convertStringArrayToSet(String[] fields) {
