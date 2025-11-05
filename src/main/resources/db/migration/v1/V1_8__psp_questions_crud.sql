@@ -89,7 +89,7 @@ FROM tbl_questions
 WHERE (subject LIKE '%' + @subject + '%')
   AND (mode LIKE '%' + @mode + '%')
   AND (difficulty_level LIKE '%' + @difficulty_level + '%')
-  AND (exam_type LIKE '%' + @exam_type + '%')
+  AND (exam_type LIKE '%' + @exam_type + '%' OR exam_type IS NULL)
   AND (question LIKE '%' + @search_query + '%')
   AND CAST(created_on AS DATE) BETWEEN (CASE WHEN @start_date IS NULL THEN '2001-08-23' ELSE @start_date END) AND (CASE WHEN @end_date IS NULL THEN GETDATE() ELSE @end_date END)
 
@@ -101,7 +101,7 @@ FROM tbl_questions
 WHERE (subject LIKE '%' + @subject + '%')
   AND (mode LIKE '%' + @mode + '%')
   AND (difficulty_level LIKE '%' + @difficulty_level + '%')
-  AND (exam_type LIKE '%' + @exam_type + '%')
+  AND (exam_type LIKE '%' + @exam_type + '%' OR exam_type IS NULL)
   AND (question LIKE '%' + @search_query + '%')
   AND CAST(created_on AS DATE) BETWEEN (CASE WHEN @start_date IS NULL THEN '2001-08-23' ELSE @start_date END) AND (CASE WHEN @end_date IS NULL THEN GETDATE() ELSE @end_date END)
     IF @@ERROR <> 0
