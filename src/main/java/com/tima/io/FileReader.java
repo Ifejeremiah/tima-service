@@ -89,7 +89,7 @@ public final class FileReader {
         question.setTopic(fields[4].trim());
         question.setDifficultyLevel(QuestionDifficultyLevel.valueOf(fields[5].trim()));
         question.setMode(QuestionMode.valueOf(fields[6].trim()));
-        question.setExamType(ExamType.valueOf(fields[7].trim()));
+        question.setExamType(fields[7].trim());
         question.setJobStatus(JobStatus.SUCCESSFUL);
     }
 
