@@ -1,6 +1,7 @@
 package com.tima.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.tima.enums.TransactionStatus;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,7 +14,7 @@ import java.time.LocalDateTime;
 public class Transaction extends BaseObject {
     private String transactionRef;
     private Integer customerId;
-    private String status;
+    private TransactionStatus status;
     private BigDecimal amount;
     private String paymentPlan;
     private String paymentMethod;

@@ -1,10 +1,16 @@
 package com.tima.service;
 
 import com.tima.dao.TransactionDao;
+import com.tima.dto.TransactionCreateRequest;
+import com.tima.dto.TransactionSummary;
+import com.tima.dto.TransactionUpdateStatus;
+import com.tima.enums.TransactionStatus;
+import com.tima.exception.BadRequestException;
 import com.tima.exception.NotFoundException;
 import com.tima.model.Page;
 import com.tima.model.Transaction;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -18,8 +24,11 @@ public class TransactionService extends BaseService {
         this.transactionDao = transactionDao;
     }
 
-    public void create(Transaction transaction) {
+    public void create(TransactionCreateRequest request) {
         try {
+            Transaction transaction = new Transaction();
+            BeanUtils.copyProperties(request, transaction);
+            transaction.setStatus(TransactionStatus.valueOf(request.getStatus()));
             transaction.setTransactionRef("TXN0" + UUID.randomUUID().toString().replace("-", "").substring(0, 12).toUpperCase());
             transactionDao.create(transaction);
         } catch (Exception error) {
@@ -61,13 +70,24 @@ public class TransactionService extends BaseService {
         }
     }
 
-    public void update(int id, String status) {
+    public void update(int id, TransactionUpdateStatus request) {
         try {
             Transaction existing = this.findById(id);
-            existing.setStatus(status);
+            if (!existing.getStatus().equals(TransactionStatus.PENDING))
+                throw new BadRequestException("Transaction is in immutable state");
+            existing.setStatus(TransactionStatus.valueOf(request.getStatus()));
             transactionDao.update(existing);
         } catch (Exception error) {
             log.error("Error updating transaction", error);
+            throw error;
+        }
+    }
+
+    public TransactionSummary findTransactionSummary() {
+        try {
+            return transactionDao.findTransactionSummary();
+        } catch (Exception error) {
+            log.error("Error fetching transaction summary", error);
             throw error;
         }
     }

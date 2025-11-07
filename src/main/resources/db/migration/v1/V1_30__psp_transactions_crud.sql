@@ -156,3 +156,31 @@ WHERE id = @id
 
     RETURN @@Error
 GO
+
+-- FETCH TRANSACTION SUMMARY --
+
+IF NOT EXISTS(SELECT *
+              FROM sys.objects
+              WHERE object_id = OBJECT_ID(N'psp_fetch_transaction_summary')
+                AND type IN (N'P', N'PC'))
+    EXEC ('CREATE PROCEDURE psp_fetch_transaction_summary AS BEGIN SET NOCOUNT ON; END')
+GO
+
+ALTER PROCEDURE [psp_fetch_transaction_summary]
+AS
+    SET NOCOUNT ON
+    BEGIN TRANSACTION
+
+SELECT SUM(amount)                                                  AS total,
+       SUM(CASE WHEN status LIKE 'COMPLETE' THEN amount ELSE 0 END) AS complete,
+       SUM(CASE WHEN status LIKE 'PENDING' THEN amount ELSE 0 END)  AS pending,
+       SUM(CASE WHEN status LIKE 'FAILED' THEN amount ELSE 0 END)   AS failed,
+       SUM(CASE WHEN status LIKE 'REVERSED' THEN amount ELSE 0 END) AS reversed
+FROM tbl_transactions
+    IF @@ERROR <> 0
+        ROLLBACK TRANSACTION;
+    ELSE
+        COMMIT TRANSACTION;
+
+    RETURN @@Error
+GO

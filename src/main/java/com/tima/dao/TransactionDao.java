@@ -1,5 +1,6 @@
 package com.tima.dao;
 
+import com.tima.dto.TransactionSummary;
 import com.tima.model.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -16,7 +17,8 @@ import java.util.Map;
 
 @Component
 public class TransactionDao extends BaseDao<Transaction> {
-    SimpleJdbcCall findByTransactionRef;
+    SimpleJdbcCall findByTransactionRef,
+    findTransactionSummary;
 
     @Autowired
     public void setDataSource(DataSource dataSource) {
@@ -37,6 +39,9 @@ public class TransactionDao extends BaseDao<Transaction> {
                 .withProcedureName("psp_fetch_transactions")
                 .returningResultSet(MULTIPLE_RESULT, BeanPropertyRowMapper.newInstance(Transaction.class))
                 .returningResultSet(RESULT_COUNT, new RowCountMapper());
+        findTransactionSummary = new SimpleJdbcCall(jdbcTemplate)
+                .withProcedureName("psp_fetch_transaction_summary")
+                .returningResultSet(SINGLE_RESULT, BeanPropertyRowMapper.newInstance(TransactionSummary.class));
         update = new SimpleJdbcCall(jdbcTemplate)
                 .withProcedureName("psp_update_transaction_status")
                 .withReturnValue();
@@ -47,5 +52,11 @@ public class TransactionDao extends BaseDao<Transaction> {
         Map<String, Object> m = this.findByTransactionRef.execute(in);
         List<Transaction> result = (List<Transaction>) m.get(SINGLE_RESULT);
         return !result.isEmpty() ? result.get(0) : null;
+    }
+
+    public TransactionSummary findTransactionSummary() throws DataAccessException {
+        Map<String, Object> m = this.findTransactionSummary.execute();
+        List<TransactionSummary> result = (List<TransactionSummary>) m.get(SINGLE_RESULT);
+        return result.get(0);
     }
 }

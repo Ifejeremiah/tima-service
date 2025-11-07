@@ -1,11 +1,15 @@
 package com.tima.web;
 
 import com.tima.dto.Response;
+import com.tima.dto.TransactionCreateRequest;
+import com.tima.dto.TransactionSummary;
+import com.tima.dto.TransactionUpdateStatus;
 import com.tima.model.Page;
 import com.tima.model.Transaction;
 import com.tima.service.TransactionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,7 +23,7 @@ public class TransactionController {
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(value = HttpStatus.CREATED)
-    public Response<Transaction> create(@RequestBody Transaction request) {
+    public Response<Transaction> create(@RequestBody @Validated TransactionCreateRequest request) {
         transactionService.create(request);
         return new Response<>("Transaction created successfully");
     }
@@ -52,8 +56,16 @@ public class TransactionController {
     }
 
     @PutMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public Response<Transaction> updateStatus(@PathVariable int id, @RequestBody Transaction updateRequest) {
-        transactionService.update(id, updateRequest.getStatus());
+    public Response<Transaction> updateStatus(@PathVariable int id, @RequestBody @Validated TransactionUpdateStatus request) {
+        transactionService.update(id, request);
         return new Response<>("Transaction status updated successfully");
+    }
+
+    @GetMapping(path = "summary", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Response<TransactionSummary> findTransactionSummary() {
+        Response<TransactionSummary> response = new Response<>();
+        response.setData(transactionService.findTransactionSummary());
+        response.setMessage("Transaction summary fetched successfully");
+        return response;
     }
 }
