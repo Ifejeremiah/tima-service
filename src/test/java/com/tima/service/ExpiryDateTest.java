@@ -4,10 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -35,8 +32,14 @@ class ExpiryDateTest {
 
         Integer[] optionList = {1, 5, 3, 6, 2, 5};
         Set<Integer> nums = new LinkedHashSet<>(Arrays.asList(optionList));
-        for (Integer num : nums){
+        for (Integer num : nums) {
             log.info(String.valueOf(num));
         }
+    }
+
+    @Test
+    void testForTransactionRef() {
+        String transactionRef = "TXN0" + UUID.randomUUID().toString().replace("-", "").substring(0, 12).toUpperCase();
+        log.info(transactionRef);
     }
 }
