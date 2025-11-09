@@ -9,7 +9,6 @@ import com.tima.model.Mail;
 import com.tima.model.Page;
 import com.tima.model.Role;
 import com.tima.util.AuthUtil;
-import com.tima.util.MailUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -22,14 +21,12 @@ public class AdminUserService {
     AdminUserDao adminUserDao;
     UserService userService;
     MailService mailService;
-    OTPService otpService;
     RoleService roleService;
 
     public AdminUserService(AdminUserDao adminUserDao, UserService userService, MailService mailService, OTPService otpService, RoleService roleService) {
         this.adminUserDao = adminUserDao;
         this.userService = userService;
         this.mailService = mailService;
-        this.otpService = otpService;
         this.roleService = roleService;
     }
 
@@ -37,9 +34,7 @@ public class AdminUserService {
         try {
             userService.checkUserExists(adminUser.getEmail());
             adminUser.setCreatedBy(AuthUtil.getCurrentUserEmail());
-            String otp = otpService.create(adminUser.getEmail());
-            mailService.sendMail(adminUser.getEmail(), constructMail());
-            mailService.sendMail(adminUser.getEmail(), MailUtil.constructOTPMail(otp));
+            mailService.sendMail(adminUser.getEmail(), constructMail(adminUser));
             long adminId = adminUserDao.create(adminUser);
             adminUser.setId((int) adminId);
             return adminUser;
@@ -49,10 +44,10 @@ public class AdminUserService {
         }
     }
 
-    private Mail constructMail() {
+    private Mail constructMail(AdminUser adminUser) {
         Mail mail = new Mail();
-        mail.setSubject("You have been created as an admin user");
-        mail.setContext("Hello! <br\\>%s</b>. You have been created as an admin user.");
+        mail.setSubject("You are now an admin user");
+        mail.setContext(String.format("Hello %s! You have been created as an admin user. Kindly proceed to reset your password on the platform. <br\\>Regards", adminUser.getFirstName()));
         return mail;
     }
 
