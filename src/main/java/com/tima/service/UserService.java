@@ -1,6 +1,7 @@
 package com.tima.service;
 
 import com.tima.dao.AdminUserDao;
+import com.tima.dao.StudentDao;
 import com.tima.dao.UserDao;
 import com.tima.dto.ChangePasswordRequest;
 import com.tima.dto.CurrentUserResponse;
@@ -12,6 +13,7 @@ import com.tima.model.Mail;
 import com.tima.model.Page;
 import com.tima.model.User;
 import com.tima.util.Encoder;
+import com.tima.util.JwtUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -23,13 +25,19 @@ public class UserService extends BaseService {
     MailService mailService;
     RoleService roleService;
     AdminUserDao adminUserDao;
+    JwtUtil jwtUtil;
+    TokenService tokenService;
+    StudentDao studentDao;
 
-    public UserService(UserDao userDao, Encoder encoder, MailService mailService, RoleService roleService, AdminUserDao adminUserDao) {
+    public UserService(UserDao userDao, Encoder encoder, MailService mailService, RoleService roleService, AdminUserDao adminUserDao, JwtUtil jwtUtil, TokenService tokenService, StudentDao studentDao) {
         this.userDao = userDao;
         this.encoder = encoder;
         this.mailService = mailService;
         this.roleService = roleService;
         this.adminUserDao = adminUserDao;
+        this.jwtUtil = jwtUtil;
+        this.tokenService = tokenService;
+        this.studentDao = studentDao;
     }
 
     public long create(User user) {
@@ -91,8 +99,10 @@ public class UserService extends BaseService {
         try {
             CurrentUserResponse currentUser = new CurrentUserResponse();
             currentUser.setUser(this.findById(fetchCurrentUserId()));
-            currentUser.setRoles(adminUserDao.findRolesOnUser(fetchCurrentUserId()));
-            currentUser.setPermissions(adminUserDao.findPermissionsOnUser(fetchCurrentUserId()));
+            currentUser.setRoles(adminUserDao.findRolesOnCurrentUser(fetchCurrentUserId()));
+            currentUser.setPermissions(adminUserDao.findPermissionsOnCurrentUser(fetchCurrentUserId()));
+            currentUser.setAdminUser(adminUserDao.findByUserId(fetchCurrentUserId()));
+            currentUser.setStudent(studentDao.findByUserId(fetchCurrentUserId()));
             return currentUser;
         } catch (Exception error) {
             log.error("Error fetching current user", error);
@@ -134,12 +144,12 @@ public class UserService extends BaseService {
     public void changePassword(ChangePasswordRequest passwordRequest) {
         try {
             User user = this.findByEmail(fetchCurrentUserEmail());
-            if (!encoder.validatePassword(passwordRequest.getOldPassword(), user.getPassword()))
-                throw new BadRequestException("Old password is incorrect");
             if (encoder.validatePassword(passwordRequest.getNewPassword(), user.getPassword()))
                 throw new BadRequestException("New password is same as old password");
             userDao.updatePassword(fetchCurrentUserId(), encoder.encodePassword(passwordRequest.getNewPassword()));
             mailService.sendMail(user.getEmail(), composeMail());
+            String refreshToken = jwtUtil.generateRefreshToken();
+            tokenService.create(user.getEmail(), refreshToken);
         } catch (Exception error) {
             log.error("Error changing user password", error);
             throw error;

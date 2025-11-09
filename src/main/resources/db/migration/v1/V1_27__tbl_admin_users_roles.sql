@@ -6,7 +6,7 @@ IF EXISTS (SELECT 1
 ELSE
     CREATE TABLE tbl_users_roles
     (
-        user_id INT NOT NULL REFERENCES tbl_user_details (id),
+        user_id INT NOT NULL REFERENCES tbl_admin_users (id),
         role_id INT NOT NULL REFERENCES tbl_roles (id)
     )
 GO

@@ -19,9 +19,12 @@ import java.util.Map;
 public class AdminUserDao extends BaseDao<AdminUser> {
     SimpleJdbcCall createUserRole,
             deleteUserRole,
+            findByUserId,
             findUserRole,
             findRolesOnUser,
-            findPermissionsOnUser;
+            findPermissionsOnUser,
+            findRolesOnCurrentUser,
+            findPermissionsOnCurrentUser;
 
     @Autowired
     public void setDataSource(DataSource dataSource) {
@@ -34,6 +37,9 @@ public class AdminUserDao extends BaseDao<AdminUser> {
                 .withReturnValue();
         findById = new SimpleJdbcCall(jdbcTemplate)
                 .withProcedureName("psp_fetch_admin_user")
+                .returningResultSet(SINGLE_RESULT, BeanPropertyRowMapper.newInstance(AdminUser.class));
+        findByUserId = new SimpleJdbcCall(jdbcTemplate)
+                .withProcedureName("psp_fetch_admin_user_by_current_user_id")
                 .returningResultSet(SINGLE_RESULT, BeanPropertyRowMapper.newInstance(AdminUser.class));
         findAllPaginated = new SimpleJdbcCall(jdbcTemplate)
                 .withProcedureName("psp_fetch_admin_users")
@@ -57,6 +63,19 @@ public class AdminUserDao extends BaseDao<AdminUser> {
         findPermissionsOnUser = new SimpleJdbcCall(jdbcTemplate)
                 .withProcedureName("psp_fetch_permissions_on_user")
                 .returningResultSet(MULTIPLE_RESULT, BeanPropertyRowMapper.newInstance(Permission.class));
+        findRolesOnCurrentUser = new SimpleJdbcCall(jdbcTemplate)
+                .withProcedureName("psp_fetch_roles_on_current_user")
+                .returningResultSet(MULTIPLE_RESULT, BeanPropertyRowMapper.newInstance(Role.class));
+        findPermissionsOnCurrentUser = new SimpleJdbcCall(jdbcTemplate)
+                .withProcedureName("psp_fetch_permissions_on_current_user")
+                .returningResultSet(MULTIPLE_RESULT, BeanPropertyRowMapper.newInstance(Permission.class));
+    }
+
+    public AdminUser findByUserId(int userId) {
+        SqlParameterSource in = (new MapSqlParameterSource()).addValue("current_user_id", userId);
+        Map<String, Object> m = this.findByUserId.execute(in);
+        List<AdminUser> result = (List<AdminUser>) m.get(SINGLE_RESULT);
+        return !result.isEmpty() ? result.get(0) : null;
     }
 
     public void createUserRole(int userId, int roleId) {
@@ -85,6 +104,18 @@ public class AdminUserDao extends BaseDao<AdminUser> {
     public List<Permission> findPermissionsOnUser(int userId) {
         SqlParameterSource in = (new MapSqlParameterSource()).addValue("user_id", userId);
         Map<String, Object> m = this.findPermissionsOnUser.execute(in);
+        return (List<Permission>) m.get(MULTIPLE_RESULT);
+    }
+
+    public List<Role> findRolesOnCurrentUser(int currentUserId) {
+        SqlParameterSource in = (new MapSqlParameterSource()).addValue("current_user_id", currentUserId);
+        Map<String, Object> m = this.findRolesOnCurrentUser.execute(in);
+        return (List<Role>) m.get(MULTIPLE_RESULT);
+    }
+
+    public List<Permission> findPermissionsOnCurrentUser(int currentUserId) {
+        SqlParameterSource in = (new MapSqlParameterSource()).addValue("current_user_id", currentUserId);
+        Map<String, Object> m = this.findPermissionsOnCurrentUser.execute(in);
         return (List<Permission>) m.get(MULTIPLE_RESULT);
     }
 }

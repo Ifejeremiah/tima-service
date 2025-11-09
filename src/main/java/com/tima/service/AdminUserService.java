@@ -33,14 +33,16 @@ public class AdminUserService {
         this.roleService = roleService;
     }
 
-    public long create(AdminUser adminUser) {
+    public AdminUser create(AdminUser adminUser) {
         try {
             userService.checkUserExists(adminUser.getEmail());
             adminUser.setCreatedBy(AuthUtil.getCurrentUserEmail());
             String otp = otpService.create(adminUser.getEmail());
             mailService.sendMail(adminUser.getEmail(), constructMail());
             mailService.sendMail(adminUser.getEmail(), MailUtil.constructOTPMail(otp));
-            return adminUserDao.create(adminUser);
+            long adminId = adminUserDao.create(adminUser);
+            adminUser.setId((int) adminId);
+            return adminUser;
         } catch (Exception error) {
             log.error("Error creating admin user", error);
             throw error;

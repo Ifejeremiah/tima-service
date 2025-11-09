@@ -46,7 +46,7 @@ VALUES (@email,
 
 SELECT @user_login_id = @@IDENTITY
 
-INSERT INTO tbl_user_details(user_login_id,
+INSERT INTO tbl_admin_users(user_login_id,
                              first_name,
                              last_name,
                              job_title,
@@ -100,7 +100,7 @@ SELECT a.id,
        b.email,
        a.job_title,
        a.country
-FROM tbl_user_details a
+FROM tbl_admin_users a
          INNER JOIN tbl_user_login b ON a.user_login_id = b.id
 WHERE b.status <> 'DELETED'
   AND ((a.first_name LIKE '%' + @search_query + '%')
@@ -110,7 +110,7 @@ ORDER BY a.[id] DESC
 OFFSET @offset ROWS FETCH NEXT @page_size ROWS ONLY
 
 SELECT COUNT(*) AS count
-FROM tbl_user_details a
+FROM tbl_admin_users a
          INNER JOIN tbl_user_login b ON a.user_login_id = b.id
 WHERE b.status <> 'DELETED'
   AND ((a.first_name LIKE '%' + @search_query + '%')
@@ -139,9 +139,38 @@ AS
 
 SELECT a.*,
        b.email
-FROM tbl_user_details a
+FROM tbl_admin_users a
          INNER JOIN tbl_user_login b ON a.user_login_id = b.id
 WHERE a.id = @id
+  AND b.status <> 'DELETED'
+    IF @@ERROR <> 0
+        ROLLBACK TRANSACTION;
+    ELSE
+        COMMIT TRANSACTION;
+
+    RETURN @@ERROR
+GO
+
+-- FETCH ADMIN USER BY CURRENT USER ID --
+
+IF NOT EXISTS(SELECT *
+              FROM sys.objects
+              WHERE object_id = OBJECT_ID(N'psp_fetch_admin_user_by_current_user_id')
+                AND type IN (N'P', N'PC'))
+    EXEC ('CREATE PROCEDURE psp_fetch_admin_user_by_current_user_id AS BEGIN SET NOCOUNT ON; END')
+GO
+
+ALTER PROCEDURE [psp_fetch_admin_user_by_current_user_id](
+    @current_user_id INT)
+AS
+    SET NOCOUNT ON
+    BEGIN TRANSACTION
+
+SELECT a.*,
+       b.email
+FROM tbl_admin_users a
+         INNER JOIN tbl_user_login b ON a.user_login_id = b.id
+WHERE b.id = @current_user_id
   AND b.status <> 'DELETED'
     IF @@ERROR <> 0
         ROLLBACK TRANSACTION;
@@ -175,7 +204,7 @@ AS
     SET NOCOUNT ON
     BEGIN TRANSACTION
 
-UPDATE tbl_user_details
+UPDATE tbl_admin_users
 SET first_name      = @first_name,
     last_name       = @last_name,
     job_title       = @job_title,

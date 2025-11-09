@@ -44,13 +44,6 @@ public class StudentController {
         return response;
     }
 
-    @GetMapping(path = "/me", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Response<Student> findByCurrentUser() {
-        Response<Student> response = new Response<>();
-        response.setData(studentService.findByUserId());
-        response.setMessage("Student fetched by current user successfully");
-        return response;
-    }
 
     @PutMapping(path = "/me", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public Response<Student> update(@RequestBody @Validated Student updateRequest) {

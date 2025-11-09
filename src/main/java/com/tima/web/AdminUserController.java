@@ -25,8 +25,10 @@ public class AdminUserController {
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(value = HttpStatus.CREATED)
     public Response<AdminUser> create(@Validated @RequestBody AdminUser request) {
-        adminUserService.create(request);
-        return new Response<>("Admin user created successfully");
+        Response<AdminUser> response = new Response<>();
+        response.setData(adminUserService.create(request));
+        response.setMessage("Admin user created successfully");
+        return response;
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
