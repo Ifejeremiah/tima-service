@@ -1,9 +1,9 @@
 IF
     EXISTS (SELECT 1
             FROM sys.objects
-            WHERE object_id = object_id(N'tbl_user_transactions')
+            WHERE object_id = object_id(N'tbl_transactions')
               AND type IN (N'U'))
-    PRINT 'TABLE tbl_user_transactions ALREADY EXISTS... CREATE TABLE ABORTED'
+    PRINT 'TABLE tbl_transactions ALREADY EXISTS... CREATE TABLE ABORTED'
 ELSE
     CREATE TABLE tbl_transactions
     (

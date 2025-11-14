@@ -23,7 +23,7 @@ public class AdminUserService {
     MailService mailService;
     RoleService roleService;
 
-    public AdminUserService(AdminUserDao adminUserDao, UserService userService, MailService mailService, OTPService otpService, RoleService roleService) {
+    public AdminUserService(AdminUserDao adminUserDao, UserService userService, MailService mailService, RoleService roleService) {
         this.adminUserDao = adminUserDao;
         this.userService = userService;
         this.mailService = mailService;
