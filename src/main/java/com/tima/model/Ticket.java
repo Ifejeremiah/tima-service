@@ -15,4 +15,5 @@ public class Ticket extends BaseObject {
     private TicketPriority priority;
     private String category;
     private Integer assignedTo;
+    private String assigneeEmail;
 }

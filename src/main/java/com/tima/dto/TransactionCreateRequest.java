@@ -2,6 +2,7 @@ package com.tima.dto;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.*;
 import java.math.BigDecimal;
@@ -20,8 +21,10 @@ public class TransactionCreateRequest {
     @DecimalMin(value = "0.01", message = "Amount must be greater than zero")
     private BigDecimal amount;
     @NotBlank(message = "Payment plan is required")
+    @Length(max = 20)
     private String paymentPlan;
     @NotBlank(message = "Payment method is required")
+    @Length(max = 20)
     private String paymentMethod;
     @NotNull(message = "Next payment is required")
     @Future(message = "Next payment cannot be in the past")

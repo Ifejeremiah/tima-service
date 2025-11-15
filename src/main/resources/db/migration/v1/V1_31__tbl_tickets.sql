@@ -15,6 +15,7 @@ ELSE
         assigned_to     INT REFERENCES tbl_admin_users (id),
         created_by      VARCHAR(70)  NOT NULL,
         created_on      DATETIME     NOT NULL,
-        last_updated_on DATETIME
+        last_updated_on DATETIME,
+        last_updated_by VARCHAR(70)
     )
 GO
