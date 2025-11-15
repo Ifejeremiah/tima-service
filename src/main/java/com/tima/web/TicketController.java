@@ -6,6 +6,8 @@ import com.tima.dto.TicketSummary;
 import com.tima.dto.TicketUpdateRequest;
 import com.tima.model.Page;
 import com.tima.model.Ticket;
+import com.tima.model.TicketChat;
+import com.tima.service.TicketChatService;
 import com.tima.service.TicketService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -16,9 +18,11 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping(value = "/api/v1/tickets")
 public class TicketController {
     TicketService ticketService;
+    TicketChatService ticketChatService;
 
-    public TicketController(TicketService ticketService) {
+    public TicketController(TicketService ticketService, TicketChatService ticketChatService) {
         this.ticketService = ticketService;
+        this.ticketChatService = ticketChatService;
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -61,6 +65,25 @@ public class TicketController {
         Response<TicketSummary> response = new Response<>();
         response.setData(ticketService.findTicketSummary());
         response.setMessage("Ticket summary fetched successfully");
+        return response;
+    }
+
+    @PostMapping(path = "/{ticketId}/chats", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(value = HttpStatus.CREATED)
+    public Response<TicketChat> create(@PathVariable int ticketId, @RequestBody @Validated TicketChat request) {
+        request.setTicketId(ticketId);
+        ticketChatService.create(request);
+        return new Response<>("Ticket chat created successfully");
+    }
+
+    @GetMapping(path = "/{ticketId}/chats", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Response<Page<TicketChat>> findAll(
+            @PathVariable int ticketId,
+            @RequestParam(name = "page_num", defaultValue = "0") int page,
+            @RequestParam(name = "page_size", defaultValue = "10") int size) {
+        Response<Page<TicketChat>> response = new Response<>();
+        response.setData(ticketChatService.findAll(page, size, ticketId));
+        response.setMessage("Ticket chats fetched successfully");
         return response;
     }
 }
