@@ -6,8 +6,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class TicketSummary {
-    private String totalTickets;
-    private String openTickets;
-    private String inProgressTickets;
-    private String resolvedTickets;
+    private Integer totalTickets;
+    private Integer openTickets;
+    private Integer inProgressTickets;
+    private Integer resolvedTickets;
 }
