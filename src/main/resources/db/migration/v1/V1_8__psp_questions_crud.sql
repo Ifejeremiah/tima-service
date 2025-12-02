@@ -122,7 +122,7 @@ ALTER PROCEDURE psp_fetch_question_subjects
 AS
 
     BEGIN TRANSACTION
-SELECT subject
+SELECT DISTINCT subject
 FROM tbl_questions
 ORDER BY subject
     IF @@ERROR <> 0
@@ -143,7 +143,7 @@ ALTER PROCEDURE psp_fetch_topics_by_question_subject @subject VARCHAR(100)
 AS
 
     BEGIN TRANSACTION
-SELECT topic
+SELECT DISTINCT topic
 FROM tbl_questions
 WHERE subject = @subject
 ORDER BY topic

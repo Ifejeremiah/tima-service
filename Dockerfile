@@ -12,7 +12,7 @@ COPY .mvn .mvn
 RUN chmod +x ./mvnw
 RUN ./mvnw clean package
 
-# Stage 2: Create the final Docker image using OpenJDK 19
+# Stage 2: Create the final Docker image using OpenJDK
 FROM openjdk:8u252
 VOLUME /tmp
 
