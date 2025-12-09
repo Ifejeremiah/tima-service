@@ -1,5 +1,6 @@
 package com.tima.dao;
 
+import com.tima.dto.AdminUserSummary;
 import com.tima.model.AdminUser;
 import com.tima.model.Permission;
 import com.tima.model.Role;
@@ -24,7 +25,8 @@ public class AdminUserDao extends BaseDao<AdminUser> {
             findRolesOnUser,
             findPermissionsOnUser,
             findRolesOnCurrentUser,
-            findPermissionsOnCurrentUser;
+            findPermissionsOnCurrentUser,
+            findAdminUserSummary;
 
     @Autowired
     public void setDataSource(DataSource dataSource) {
@@ -69,6 +71,9 @@ public class AdminUserDao extends BaseDao<AdminUser> {
         findPermissionsOnCurrentUser = new SimpleJdbcCall(jdbcTemplate)
                 .withProcedureName("psp_fetch_permissions_on_current_user")
                 .returningResultSet(MULTIPLE_RESULT, BeanPropertyRowMapper.newInstance(Permission.class));
+        findAdminUserSummary = new SimpleJdbcCall(jdbcTemplate)
+                .withProcedureName("psp_fetch_admin_user_summary")
+                .returningResultSet(SINGLE_RESULT, BeanPropertyRowMapper.newInstance(AdminUserSummary.class));
     }
 
     public AdminUser findByUserId(int userId) {
@@ -117,5 +122,11 @@ public class AdminUserDao extends BaseDao<AdminUser> {
         SqlParameterSource in = (new MapSqlParameterSource()).addValue("current_user_id", currentUserId);
         Map<String, Object> m = this.findPermissionsOnCurrentUser.execute(in);
         return (List<Permission>) m.get(MULTIPLE_RESULT);
+    }
+
+    public AdminUserSummary findAdminUserSummary() {
+        Map<String, Object> m = this.findAdminUserSummary.execute();
+        List<AdminUserSummary> result = (List<AdminUserSummary>) m.get(SINGLE_RESULT);
+        return result.get(0);
     }
 }

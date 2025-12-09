@@ -200,3 +200,31 @@ WHERE f.id = @current_user_id
     ELSE
         COMMIT TRANSACTION
 GO
+
+-- FETCH ADMIN USER SUMMARY --
+
+IF NOT EXISTS(SELECT *
+              FROM sys.objects
+              WHERE object_id = OBJECT_ID(N'psp_fetch_admin_user_summary')
+                AND type IN (N'P', N'PC'))
+    EXEC ('CREATE PROCEDURE psp_fetch_admin_user_summary AS BEGIN SET NOCOUNT ON; END')
+GO
+
+ALTER PROCEDURE [psp_fetch_admin_user_summary]
+AS
+    SET NOCOUNT ON
+    BEGIN TRANSACTION
+
+SELECT COUNT(a.id)                                             AS total_admin_users,
+       SUM(CASE WHEN b.status = 'ACTIVE' THEN 1 ELSE 0 END)    AS total_active_admin_users,
+       SUM(CASE WHEN b.status = 'INACTIVE' THEN 1 ELSE 0 END)  AS total_inactive_admin_users,
+       SUM(CASE WHEN b.status = 'SUSPENDED' THEN 1 ELSE 0 END) AS total_suspended_admin_users
+FROM tbl_admin_users a
+         INNER JOIN tbl_user_login b ON a.user_login_id = b.id
+    IF @@ERROR <> 0
+        ROLLBACK TRANSACTION;
+    ELSE
+        COMMIT TRANSACTION;
+
+    RETURN @@Error
+GO

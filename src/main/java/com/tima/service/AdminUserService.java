@@ -1,6 +1,7 @@
 package com.tima.service;
 
 import com.tima.dao.AdminUserDao;
+import com.tima.dto.AdminUserSummary;
 import com.tima.dto.AdminUserUpdateRequest;
 import com.tima.exception.DuplicateEntityException;
 import com.tima.exception.NotFoundException;
@@ -121,6 +122,15 @@ public class AdminUserService {
             return adminUserDao.findRolesOnUser(adminUser.getId());
         } catch (Exception error) {
             log.error("Error fetching roles on user", error);
+            throw error;
+        }
+    }
+
+    public AdminUserSummary findAdminUserSummary() {
+        try {
+            return adminUserDao.findAdminUserSummary();
+        } catch (Exception error) {
+            log.error("Error fetching admin user summary", error);
             throw error;
         }
     }

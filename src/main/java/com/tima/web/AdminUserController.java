@@ -1,5 +1,6 @@
 package com.tima.web;
 
+import com.tima.dto.AdminUserSummary;
 import com.tima.dto.AdminUserUpdateRequest;
 import com.tima.dto.Response;
 import com.tima.model.AdminUser;
@@ -73,6 +74,14 @@ public class AdminUserController {
         Response<List<Role>> response = new Response<>();
         response.setData(adminUserService.findRolesOnUser(userId));
         response.setMessage("Roles on userId " + userId + " fetched successfully");
+        return response;
+    }
+
+    @GetMapping(path = "summary", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Response<AdminUserSummary> findQuestionSummary() {
+        Response<AdminUserSummary> response = new Response<>();
+        response.setData(adminUserService.findAdminUserSummary());
+        response.setMessage("Admin user summary fetched successfully");
         return response;
     }
 }
