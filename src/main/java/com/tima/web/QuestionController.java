@@ -1,6 +1,7 @@
 package com.tima.web;
 
 import com.tima.dto.QuestionCreateRequest;
+import com.tima.dto.QuestionSummary;
 import com.tima.dto.Response;
 import com.tima.dto.UploadQuestionResponse;
 import com.tima.model.Page;
@@ -102,5 +103,13 @@ public class QuestionController {
     public Response<Question> delete(@PathVariable int id) {
         questionService.delete(id);
         return new Response<>("Question deleted successfully");
+    }
+
+    @GetMapping(path = "summary", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Response<QuestionSummary> findQuestionSummary() {
+        Response<QuestionSummary> response = new Response<>();
+        response.setData(questionService.findQuestionSummary());
+        response.setMessage("Question summary fetched successfully");
+        return response;
     }
 }

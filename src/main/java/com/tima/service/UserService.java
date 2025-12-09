@@ -5,6 +5,7 @@ import com.tima.dao.StudentDao;
 import com.tima.dao.UserDao;
 import com.tima.dto.ChangePasswordRequest;
 import com.tima.dto.CurrentUserResponse;
+import com.tima.enums.ActorsType;
 import com.tima.enums.UserStatus;
 import com.tima.exception.BadRequestException;
 import com.tima.exception.DuplicateEntityException;
@@ -15,6 +16,7 @@ import com.tima.model.User;
 import com.tima.util.Encoder;
 import com.tima.util.JwtUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.EnumUtils;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -179,6 +181,28 @@ public class UserService extends BaseService {
             userDao.delete(existing.getId());
         } catch (Exception error) {
             log.error("Error deleting user", error);
+            throw error;
+        }
+    }
+
+    public void suspend(int id) {
+        try {
+            User existing = this.findById(id);
+            if (existing.getStatus().equals(UserStatus.SUSPENDED))
+                throw new BadRequestException("User is suspended already");
+            userDao.suspend(existing.getId());
+        } catch (Exception error) {
+            log.error("Error suspending user", error);
+            throw error;
+        }
+    }
+
+    public Page<User> findAllSuspended(int page, int size, String searchQuery, String actor) {
+        try {
+            if (actor != null && !actor.isEmpty() && !EnumUtils.isValidEnum(ActorsType.class, actor)) throw new BadRequestException("Only STUDENT or ADMIN values are allowed as actors");
+            return userDao.findAllSuspended(page, size, searchQuery, actor);
+        } catch (Exception error) {
+            log.error("Error fetching all suspended users", error);
             throw error;
         }
     }

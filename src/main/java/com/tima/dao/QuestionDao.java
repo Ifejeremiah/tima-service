@@ -1,5 +1,6 @@
 package com.tima.dao;
 
+import com.tima.dto.QuestionSummary;
 import com.tima.model.Page;
 import com.tima.model.Question;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +21,8 @@ import java.util.Map;
 public class QuestionDao extends BaseDao<Question> {
     SimpleJdbcCall findAllForQuiz,
             findAllSubjects,
-            findAllTopicsBySubject;
+            findAllTopicsBySubject,
+            findQuestionSummary;
 
     @Autowired
     public void setDataSource(DataSource dataSource) {
@@ -53,6 +55,9 @@ public class QuestionDao extends BaseDao<Question> {
         delete = new SimpleJdbcCall(jdbcTemplate)
                 .withProcedureName("psp_delete_question")
                 .withReturnValue();
+        findQuestionSummary = new SimpleJdbcCall(jdbcTemplate)
+                .withProcedureName("psp_fetch_question_summary")
+                .returningResultSet(SINGLE_RESULT, BeanPropertyRowMapper.newInstance(QuestionSummary.class));
     }
 
     public Page<Question> findAll(Integer pageNum, Integer pageSize, String searchQuery, String subject, String mode, String difficultyLevel, String examType, String startDate, String endDate) throws DataAccessException {
@@ -90,5 +95,11 @@ public class QuestionDao extends BaseDao<Question> {
         SqlParameterSource in = (new MapSqlParameterSource()).addValue("subject", subject);
         Map<String, Object> m = this.findAllTopicsBySubject.execute(in);
         return (List<Question>) m.get(MULTIPLE_RESULT);
+    }
+
+    public QuestionSummary findQuestionSummary() throws DataAccessException {
+        Map<String, Object> m = this.findQuestionSummary.execute();
+        List<QuestionSummary> result = (List<QuestionSummary>) m.get(SINGLE_RESULT);
+        return result.get(0);
     }
 }

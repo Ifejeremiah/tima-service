@@ -2,6 +2,7 @@ package com.tima.service;
 
 import com.tima.dao.QuestionDao;
 import com.tima.dto.QuestionCreateRequest;
+import com.tima.dto.QuestionSummary;
 import com.tima.dto.UploadQuestionResponse;
 import com.tima.enums.QuestionDifficultyLevel;
 import com.tima.enums.QuestionMode;
@@ -153,6 +154,15 @@ public class QuestionService extends BaseService {
             questionDao.delete(existing.getId());
         } catch (Exception error) {
             log.error("Error deleting question", error);
+            throw error;
+        }
+    }
+
+    public QuestionSummary findQuestionSummary() {
+        try {
+            return questionDao.findQuestionSummary();
+        } catch (Exception error) {
+            log.error("Error fetching question summary", error);
             throw error;
         }
     }

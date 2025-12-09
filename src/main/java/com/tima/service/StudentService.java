@@ -33,7 +33,7 @@ public class StudentService extends BaseService {
 
     private void checkUserExists(int userId) {
         if (studentDao.findByUserId(userId) != null)
-            throw new DuplicateEntityException("Student with this user id already exists");
+            throw new DuplicateEntityException("Student with this user id " + userId + " already exists");
     }
 
     public Page<Student> findAll(int page, int size, String searchQuery) {

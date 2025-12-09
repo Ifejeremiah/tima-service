@@ -1,5 +1,6 @@
 package com.tima.dao;
 
+import com.tima.model.Page;
 import com.tima.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -18,7 +19,9 @@ import java.util.Map;
 public class UserDao extends BaseDao<User> {
     SimpleJdbcCall findByEmail,
             setLastLogin,
-            updatePassword;
+            updatePassword,
+            suspend,
+            findAllSuspended;
 
     @Autowired
     public void setDataSource(DataSource dataSource) {
@@ -51,6 +54,13 @@ public class UserDao extends BaseDao<User> {
         updatePassword = new SimpleJdbcCall(jdbcTemplate)
                 .withProcedureName("psp_update_user_password")
                 .withReturnValue();
+        suspend = new SimpleJdbcCall(jdbcTemplate)
+                .withProcedureName("psp_suspend_user_login")
+                .withReturnValue();
+        findAllSuspended = new SimpleJdbcCall(jdbcTemplate)
+                .withProcedureName("psp_fetch_suspended_user_login_by_actor")
+                .returningResultSet(MULTIPLE_RESULT, BeanPropertyRowMapper.newInstance(User.class))
+                .returningResultSet(RESULT_COUNT, new RowCountMapper());
     }
 
     public User findByEmail(String email) throws DataAccessException {
@@ -68,5 +78,25 @@ public class UserDao extends BaseDao<User> {
     public void updatePassword(int id, String password) {
         SqlParameterSource in = (new MapSqlParameterSource()).addValue("id", id).addValue("password", password);
         this.updatePassword.execute(in);
+    }
+
+    public void suspend(Integer id) throws DataAccessException {
+        SqlParameterSource in = (new MapSqlParameterSource()).addValue("id", id);
+        this.suspend.execute(in);
+    }
+
+    public Page<User> findAllSuspended(Integer pageNum, Integer pageSize, String searchQuery, String actor) throws DataAccessException {
+        MapSqlParameterSource in = (new MapSqlParameterSource())
+                .addValue(PAGE, pageNum <= 0 ? 1 : pageNum)
+                .addValue(PAGE_SIZE, pageSize <= 0 ? 10 : pageSize)
+                .addValue(SEARCH_QUERY, searchQuery == null ? "" : searchQuery)
+                .addValue("actor", actor == null ? "" : actor);
+
+        Map<String, Object> m = this.findAllSuspended.execute(in);
+        List<User> content = (List<User>) m.get(MULTIPLE_RESULT);
+        List<Long> counts = (List<Long>) m.get(RESULT_COUNT);
+        Long count = counts.isEmpty() ? 0 : (Long) counts.get(0);
+
+        return new Page<>(count, content);
     }
 }

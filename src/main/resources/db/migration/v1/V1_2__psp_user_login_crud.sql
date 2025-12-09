@@ -221,3 +221,103 @@ WHERE id = @id
 
     RETURN @@Error
 GO
+
+-- SUSPEND USER LOGIN --
+
+IF NOT EXISTS(SELECT *
+              FROM sys.objects
+              WHERE object_id = OBJECT_ID(N'[psp_suspend_user_login]')
+                AND type IN (N'P', N'PC'))
+    EXEC ('CREATE PROCEDURE psp_suspend_user_login AS BEGIN SET NOCOUNT ON; END')
+GO
+
+ALTER PROCEDURE [psp_suspend_user_login] @id INT
+AS
+    SET NOCOUNT ON
+    BEGIN TRANSACTION
+
+UPDATE tbl_user_login
+SET status          = 'SUSPENDED',
+    last_updated_on = GETDATE()
+WHERE id = @id
+    IF @@ERROR <> 0
+        ROLLBACK TRANSACTION;
+    ELSE
+        COMMIT TRANSACTION;
+
+    RETURN @@Error
+
+GO
+
+-- FIND SUSPENDED USER LOGIN --
+
+IF NOT EXISTS(SELECT *
+              FROM sys.objects
+              WHERE object_id = OBJECT_ID(N'psp_fetch_suspended_user_login_by_actor')
+                AND type IN (N'P', N'PC'))
+    EXEC ('CREATE PROCEDURE psp_fetch_suspended_user_login_by_actor AS BEGIN SET NOCOUNT ON; END')
+GO
+ALTER PROCEDURE psp_fetch_suspended_user_login_by_actor(
+    @page INT,
+    @page_size INT,
+    @search_query VARCHAR(40),
+    @actor VARCHAR(40))
+AS
+DECLARE @offset INT
+    SET @offset = (@page - 1) * @page_size
+
+    BEGIN TRANSACTION
+    IF @actor = 'student'
+        BEGIN
+            SELECT a.id, a.email, a.status, a.email_confirmed
+            FROM tbl_user_login a
+                     INNER JOIN tbl_students b ON a.id = b.user_id
+            WHERE (a.email LIKE '%' + @search_query + '%')
+              AND a.status = 'SUSPENDED'
+
+            ORDER BY id DESC
+            OFFSET @offset ROWS FETCH NEXT @page_size ROWS ONLY
+
+            SELECT COUNT(*) AS count
+            FROM tbl_user_login a
+                     INNER JOIN tbl_students b ON a.id = b.user_id
+            WHERE (a.email LIKE '%' + @search_query + '%')
+              AND a.status = 'SUSPENDED'
+        END
+    IF @actor = 'admin'
+        BEGIN
+            SELECT a.id, a.email, a.status, a.email_confirmed
+            FROM tbl_user_login a
+                     INNER JOIN tbl_admin_users b ON a.id = b.user_login_id
+            WHERE (a.email LIKE '%' + @search_query + '%')
+              AND a.status = 'SUSPENDED'
+
+            ORDER BY id DESC
+            OFFSET @offset ROWS FETCH NEXT @page_size ROWS ONLY
+
+            SELECT COUNT(*) AS count
+            FROM tbl_user_login a
+                     INNER JOIN tbl_admin_users b ON a.id = b.user_login_id
+            WHERE (a.email LIKE '%' + @search_query + '%')
+              AND a.status = 'SUSPENDED'
+        END
+    ELSE
+        BEGIN
+            SELECT id, email, status, email_confirmed
+            FROM tbl_user_login a
+            WHERE (email LIKE '%' + @search_query + '%')
+              AND status = 'SUSPENDED'
+
+            ORDER BY id DESC
+            OFFSET @offset ROWS FETCH NEXT @page_size ROWS ONLY
+
+            SELECT COUNT(*) AS count
+            FROM tbl_user_login
+            WHERE (email LIKE '%' + @search_query + '%')
+              AND status = 'SUSPENDED'
+        END
+    IF @@ERROR <> 0
+        ROLLBACK TRANSACTION;
+    ELSE
+        COMMIT TRANSACTION
+GO

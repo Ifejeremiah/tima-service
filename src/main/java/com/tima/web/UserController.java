@@ -64,4 +64,22 @@ public class UserController {
         userService.delete(id);
         return new Response<>("User deleted successfully");
     }
+
+    @PostMapping(path = "/suspend/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Response<User> suspend(@PathVariable int id) {
+        userService.suspend(id);
+        return new Response<>("User suspended successfully");
+    }
+
+    @GetMapping(path = "/suspend", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Response<Page<User>> findAllSuspended(
+            @RequestParam(name = "page_num", defaultValue = "0") int page,
+            @RequestParam(name = "page_size", defaultValue = "10") int size,
+            @RequestParam(name = "search_query", required = false) String searchQuery,
+            @RequestParam(name = "actor", required = false) String actor) {
+        Response<Page<User>> response = new Response<>();
+        response.setData(userService.findAllSuspended(page, size, searchQuery, actor));
+        response.setMessage("Suspended users fetched successfully");
+        return response;
+    }
 }
