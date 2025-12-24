@@ -163,3 +163,24 @@ WHERE request_id = @request_id
     ELSE
         COMMIT TRANSACTION;
 GO
+
+-- EXECUTE QUERY --
+
+IF NOT EXISTS(SELECT *
+              FROM sys.objects
+              WHERE object_id = OBJECT_ID(N'psp_execute_query')
+                AND type IN (N'P', N'PC'))
+    EXEC ('CREATE PROCEDURE psp_execute_query AS BEGIN SET NOCOUNT ON; END')
+GO
+
+ALTER PROCEDURE psp_execute_query(
+    @query VARCHAR(MAX))
+AS
+    SET NOCOUNT ON
+    BEGIN TRANSACTION
+    exec (@query)
+    IF @@ERROR <> 0
+        ROLLBACK TRANSACTION;
+    ELSE
+        COMMIT TRANSACTION
+GO

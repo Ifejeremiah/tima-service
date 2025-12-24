@@ -20,7 +20,8 @@ import java.util.Map;
 public class JobDao extends BaseDao<Job> {
     SimpleJdbcCall updateJobStatus,
             findByRequestId,
-            updateJobStatusAndRecordCount;
+            updateJobStatusAndRecordCount,
+            execute;
 
     @Autowired
     public void setDataSource(DataSource dataSource) {
@@ -43,6 +44,9 @@ public class JobDao extends BaseDao<Job> {
                 .withReturnValue();
         updateJobStatusAndRecordCount = new SimpleJdbcCall(jdbcTemplate)
                 .withProcedureName("psp_update_job_status_and_record_count")
+                .withReturnValue();
+        execute = new SimpleJdbcCall(jdbcTemplate)
+                .withProcedureName("psp_execute_query")
                 .withReturnValue();
     }
 
@@ -75,5 +79,10 @@ public class JobDao extends BaseDao<Job> {
         Map<String, Object> m = this.findByRequestId.execute(in);
         List<Job> result = (List<Job>) m.get(SINGLE_RESULT);
         return !result.isEmpty() ? result.get(0) : null;
+    }
+
+    public void execute(String query) {
+        SqlParameterSource in = new MapSqlParameterSource().addValue("query", query);
+        this.execute.execute(in);
     }
 }

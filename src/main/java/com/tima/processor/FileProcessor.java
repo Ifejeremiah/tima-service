@@ -63,6 +63,7 @@ public class FileProcessor implements Runnable {
                 loadDataToDB();
             }
             jobDao.updateJobStatusAndRecordCount(job.getId(), JobStatus.SUCCESSFUL, rows.size());
+            cleanup();
         } catch (Exception error) {
             String msg = "Error processing file";
             jobDao.updateJobStatus(job.getId(), JobStatus.FAILED, msg + ":\n\t" + error);
@@ -75,7 +76,7 @@ public class FileProcessor implements Runnable {
     }
 
     private void loadDataToDB() {
-        String columns = "(job_id,question,answer,subject,topic,difficulty_level,mode,status,exam_type,exam_year,created_by,created_on,job_status,status_message)";
+        String columns = "(job_id,question,options,answer,subject,topic,difficulty_level,mode,status,exam_type,exam_year,created_by,created_on,job_status,status_message)";
         String headerScript = String.format("INSERT INTO [tbl_questions] %s SELECT * FROM (VALUES ", columns);
         String footerScript = String.format(") x %s", columns);
         executeQuery(headerScript, script, footerScript);
@@ -86,6 +87,10 @@ public class FileProcessor implements Runnable {
         script.append(bodyScript);
         script.setCharAt(script.length() - 1, ' ');
         script.append(footerScript);
-        log.info("SCRIPT >>> {}", script);
+        jobDao.execute(script.toString());
+    }
+
+    private void cleanup() throws IOException {
+        Files.deleteIfExists(Paths.get(job.getFilePath()));
     }
 }

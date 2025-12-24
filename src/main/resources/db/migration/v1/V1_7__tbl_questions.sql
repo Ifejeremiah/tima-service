@@ -21,6 +21,8 @@ ELSE
         created_on       DATETIME     NOT NULL,
         last_updated_by  VARCHAR(70),
         last_updated_on  DATETIME,
-        job_id           INT
+        job_id           INT,
+        job_status       VARCHAR(10),
+        status_message   VARCHAR(225)
     )
 GO

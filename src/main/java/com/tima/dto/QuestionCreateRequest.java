@@ -16,7 +16,7 @@ public class QuestionCreateRequest {
     private String question;
     private LinkedHashSet<String> optionList;
     @NotBlank(message = "Answer is required")
-    @Length(min = 3, max = 225)
+    @Length(max = 225)
     private String answer;
     @NotBlank(message = "Subject is required")
     @Length(min = 3, max = 100)
