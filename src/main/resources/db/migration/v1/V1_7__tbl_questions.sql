@@ -8,6 +8,7 @@ ELSE
     (
         id               INT IDENTITY (1,1) PRIMARY KEY,
         question         VARCHAR(MAX) NOT NULL,
+        options          VARCHAR(MAX) NOT NULL,
         answer           VARCHAR(225) NOT NULL,
         subject          VARCHAR(100) NOT NULL,
         topic            VARCHAR(100) NOT NULL,
@@ -19,6 +20,7 @@ ELSE
         created_by       VARCHAR(70)  NOT NULL,
         created_on       DATETIME     NOT NULL,
         last_updated_by  VARCHAR(70),
-        last_updated_on  DATETIME
+        last_updated_on  DATETIME,
+        job_id           INT
     )
 GO

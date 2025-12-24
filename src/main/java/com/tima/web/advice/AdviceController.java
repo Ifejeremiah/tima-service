@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -106,6 +107,17 @@ public class AdviceController {
     @ResponseBody
     public Response<MissingServletRequestPartException> handleMissingServletRequestPartException(MissingServletRequestPartException e) {
         return new Response<>(e.getMessage());
+    }
+
+    @ExceptionHandler(BindException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public Response<List<String>> handleBindException(BindException e) {
+        List<String> errors = new ArrayList<>();
+        for (FieldError error : e.getBindingResult().getFieldErrors()) {
+            errors.add(error.getField() + ": " + error.getDefaultMessage());
+        }
+        return new Response<>("Bad Request Exception", errors);
     }
 
     @ExceptionHandler(Exception.class)
