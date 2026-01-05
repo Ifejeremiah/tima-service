@@ -10,6 +10,7 @@ GO
 ALTER PROCEDURE [psp_create_question](
     @idx BIGINT = 0 OUTPUT,
     @question VARCHAR(MAX),
+    @options VARCHAR(MAX),
     @answer VARCHAR(225),
     @subject VARCHAR(100),
     @topic VARCHAR(100),
@@ -24,6 +25,7 @@ AS
     BEGIN TRANSACTION
 
 INSERT INTO tbl_questions(question,
+                          options,
                           answer,
                           subject,
                           topic,
@@ -35,6 +37,7 @@ INSERT INTO tbl_questions(question,
                           created_by,
                           created_on)
 VALUES (@question,
+        @options,
         @answer,
         @subject,
         @topic,
@@ -218,6 +221,7 @@ GO
 ALTER PROCEDURE [psp_update_question](
     @id INT,
     @question VARCHAR(MAX),
+    @options VARCHAR(MAX),
     @answer VARCHAR(225),
     @subject VARCHAR(100),
     @topic VARCHAR(100),
@@ -233,6 +237,7 @@ AS
 
 UPDATE tbl_questions
 SET question         = @question,
+    options          = @options,
     answer           = @answer,
     subject          = @subject,
     topic            = @topic,

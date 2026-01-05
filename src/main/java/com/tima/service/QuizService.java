@@ -15,19 +15,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.LinkedHashSet;
-
 @Slf4j
 @Service
 public class QuizService {
     QuizDao quizDao;
     StudentService studentService;
-    QuestionOptionsService questionOptionsService;
 
-    public QuizService(QuizDao quizDao, StudentService studentService, QuestionOptionsService questionOptionsService) {
+    public QuizService(QuizDao quizDao, StudentService studentService) {
         this.quizDao = quizDao;
         this.studentService = studentService;
-        this.questionOptionsService = questionOptionsService;
     }
 
     public Quiz create(Quiz quiz) {
@@ -78,8 +74,7 @@ public class QuizService {
             quiz.setStudentId(getCurrentStudentId());
             QuizResultSet resultSet = quizDao.start(quiz);
             for (Question question : resultSet.getQuestionList()) {
-                LinkedHashSet<String> optionSet = questionOptionsService.fetchOptions(question).getOptions();
-                question.setOptions(optionSet);
+                question.getOptionList();
             }
             return new QuizResponse(resultSet.getQuizId(), getCurrentStudentId(), resultSet.getCount(), resultSet.getQuestionList());
         } catch (Exception error) {
